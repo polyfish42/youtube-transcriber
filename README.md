@@ -1,3 +1,24 @@
-# YouTube Transcription Reader
+# README
 
-Read the transcripts of youtube videos as you watch them. Easily search for parts of the video you want to see again.
+This README would normally document whatever steps are necessary to get the
+application up and running.
+
+Things you may want to cover:
+
+* Ruby version
+
+* System dependencies
+
+* Configuration
+
+* Database creation
+
+* Database initialization
+
+* How to run the test suite
+
+* Services (job queues, cache servers, search engines, etc.)
+
+* Deployment instructions
+
+* ...
