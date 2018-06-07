@@ -16,6 +16,25 @@ var _user$project$Main$errorMessage = function (message) {
 			return 'There was an error processing your request';
 	}
 };
+var _user$project$Main$viewCaptions = function (captions) {
+	return A2(
+		_elm_lang$core$List$map,
+		function (caption) {
+			return A2(
+				_elm_lang$html$Html$p,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(caption.time),
+							A2(_elm_lang$core$Basics_ops['++'], ': ', caption.text))),
+					_1: {ctor: '[]'}
+				});
+		},
+		captions);
+};
 var _user$project$Main$Model = F3(
 	function (a, b, c) {
 		return {uri: a, captions: b, errorMessage: c};
@@ -31,7 +50,7 @@ var _user$project$Main$init = {
 };
 var _user$project$Main$Caption = F2(
 	function (a, b) {
-		return {time: a, caption: b};
+		return {time: a, text: b};
 	});
 var _user$project$Main$captionDecoder = A3(
 	_elm_lang$core$Json_Decode$map2,
@@ -129,7 +148,14 @@ var _user$project$Main$view = function (model) {
 							_0: _elm_lang$html$Html$text('Submit'),
 							_1: {ctor: '[]'}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							_user$project$Main$viewCaptions(model.captions)),
+						_1: {ctor: '[]'}
+					}
 				}
 			}
 		});

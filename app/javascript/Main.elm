@@ -32,7 +32,7 @@ type alias Model =
 
 type alias Caption =
     { time : Float
-    , caption : String
+    , text : String
     }
 
 
@@ -55,7 +55,12 @@ view model =
         [ p [] [text model.errorMessage]
         , input [ onInput UpdateUri ] []
         , button [ onClick FetchCaptions ] [ text <| "Submit" ]
+        , div [] <| viewCaptions model.captions
         ]
+
+viewCaptions : List Caption -> List (Html Msg)
+viewCaptions captions =
+  List.map (\caption -> p [] [text <| toString caption.time ++ ": " ++ caption.text]) captions 
 
 
 
