@@ -12,7 +12,7 @@ class Api::TranscriptsController < ApplicationController
 
             render "api/transcripts/show"
         else
-            render json: {errors: "This video has no captions"}, status: 500
+            render json: "This video has no captions", status: 500
         end
     end
 

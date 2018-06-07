@@ -3,10 +3,17 @@ var _user$project$Main$subscriptions = function (model) {
 };
 var _user$project$Main$errorMessage = function (message) {
 	var _p0 = message;
-	if (_p0.ctor === 'BadPayload') {
-		return _p0._0;
-	} else {
-		return 'Some other error';
+	switch (_p0.ctor) {
+		case 'BadUrl':
+			return _p0._0;
+		case 'BadPayload':
+			return _p0._0;
+		case 'NetworkError':
+			return 'We weren\'t able to fetch the captions for this video. Please check your internet connection.';
+		case 'BadStatus':
+			return _p0._0.body;
+		default:
+			return 'There was an error processing your request';
 	}
 };
 var _user$project$Main$Model = F3(

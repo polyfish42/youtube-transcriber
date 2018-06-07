@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http exposing (get, send)
-import Json.Decode as Decode
+import Json.Decode exposing (Decoder, field, float, list, map2, string)
 
 
 -- MAIN
@@ -90,11 +90,20 @@ update message model =
 errorMessage : Http.Error -> String
 errorMessage message =
     case message of
+        Http.BadUrl msg ->
+            msg
+
         Http.BadPayload msg _ ->
             msg
 
+        Http.NetworkError ->
+          "We weren't able to fetch the captions for this video. Please check your internet connection."
+
+        Http.BadStatus res ->
+            res.body
+
         _ ->
-            "Some other error"
+            "There was an error processing your request"
 
 
 fetchCaptions : String -> Cmd Msg
@@ -109,15 +118,17 @@ fetchCaptions uri =
     Http.send NewCaptions request
 
 
-decodeCaptionJson : Decode.Decoder (List Caption)
+decodeCaptionJson : Decoder (List Caption)
 decodeCaptionJson =
-    Decode.list captionDecoder
+    list captionDecoder
 
-captionDecoder : Decode.Decoder Caption
-captionDecoder = 
-    Decode.map2 Caption 
-      (Decode.field "time" Decode.float)
-      (Decode.field "text" Decode.string)
+
+captionDecoder : Decoder Caption
+captionDecoder =
+    map2 Caption
+        (field "time" float)
+        (field "text" string)
+
 
 
 -- SUBSCRIPTIONS
