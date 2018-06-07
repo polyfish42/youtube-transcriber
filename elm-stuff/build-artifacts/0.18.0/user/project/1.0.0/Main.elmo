@@ -35,6 +35,46 @@ var _user$project$Main$viewCaptions = function (captions) {
 		},
 		captions);
 };
+var _user$project$Main$viewIframe = function (videoCode) {
+	return A2(
+		_elm_lang$html$Html$iframe,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$src(
+				A2(_elm_lang$core$Basics_ops['++'], 'https://www.youtube.com/embed/', videoCode)),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_lang$html$Html_Attributes$attribute, 'frameborder', '0'),
+				_1: {ctor: '[]'}
+			}
+		},
+		{ctor: '[]'});
+};
+var _user$project$Main$viewVideo = function (uri) {
+	var videoCode = A2(
+		_elm_lang$core$List$map,
+		function (_) {
+			return _.submatches;
+		},
+		A3(
+			_elm_lang$core$Regex$find,
+			_elm_lang$core$Regex$AtMost(1),
+			_elm_lang$core$Regex$regex('\\?v=(.+)$'),
+			uri));
+	var _p1 = videoCode;
+	if (((((_p1.ctor === '::') && (_p1._0.ctor === '::')) && (_p1._0._0.ctor === 'Just')) && (_p1._0._1.ctor === '[]')) && (_p1._1.ctor === '[]')) {
+		return _user$project$Main$viewIframe(_p1._0._0._0);
+	} else {
+		return A2(
+			_elm_lang$html$Html$p,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('video not found'),
+				_1: {ctor: '[]'}
+			});
+	}
+};
 var _user$project$Main$Model = F3(
 	function (a, b, c) {
 		return {uri: a, captions: b, errorMessage: c};
@@ -68,14 +108,14 @@ var _user$project$Main$fetchCaptions = function (uri) {
 };
 var _user$project$Main$update = F2(
 	function (message, model) {
-		var _p1 = message;
-		switch (_p1.ctor) {
+		var _p2 = message;
+		switch (_p2.ctor) {
 			case 'UpdateUri':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{uri: _p1._0}),
+						{uri: _p2._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'FetchCaptions':
@@ -85,12 +125,12 @@ var _user$project$Main$update = F2(
 					_1: _user$project$Main$fetchCaptions(model.uri)
 				};
 			default:
-				if (_p1._0.ctor === 'Ok') {
+				if (_p2._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{captions: _p1._0._0}),
+							{captions: _p2._0._0}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -99,7 +139,7 @@ var _user$project$Main$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								errorMessage: _user$project$Main$errorMessage(_p1._0._0)
+								errorMessage: _user$project$Main$errorMessage(_p2._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -126,35 +166,39 @@ var _user$project$Main$view = function (model) {
 				}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$input,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateUri),
-						_1: {ctor: '[]'}
-					},
-					{ctor: '[]'}),
+				_0: _user$project$Main$viewVideo(model.uri),
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$button,
+						_elm_lang$html$Html$input,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$FetchCaptions),
+							_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateUri),
 							_1: {ctor: '[]'}
 						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('Submit'),
-							_1: {ctor: '[]'}
-						}),
+						{ctor: '[]'}),
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$div,
-							{ctor: '[]'},
-							_user$project$Main$viewCaptions(model.captions)),
-						_1: {ctor: '[]'}
+							_elm_lang$html$Html$button,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$FetchCaptions),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('Submit'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{ctor: '[]'},
+								_user$project$Main$viewCaptions(model.captions)),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
