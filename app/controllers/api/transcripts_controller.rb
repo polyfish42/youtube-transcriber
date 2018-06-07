@@ -24,7 +24,7 @@ class Api::TranscriptsController < ApplicationController
 
         doc.xpath("//transcript").children.each do |text|
             line = {}
-            line[:time] = text.attributes["dur"].value
+            line[:time] = text.attributes["start"].value
             line[:text] = remove_tags(text.children.inner_text)
             line[:id] = uid
 
