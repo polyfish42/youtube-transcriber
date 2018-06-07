@@ -1,5 +1,4 @@
 require 'open-uri'
-# http://localhost:3000/api/transcript?uri=https://www.youtube.com/watch?v=1HLMi1s6Tho
 class Api::TranscriptsController < ApplicationController
     def show
         video_uri = params[:uri]
