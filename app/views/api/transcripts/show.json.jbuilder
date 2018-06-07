@@ -1,7 +1,4 @@
-json.transcript do 
-    @lines.each do |line|
-        json.set! line[:id] do
-            json.extract! line, :time, :text
-        end
-    end
+json.array! @lines do |line|
+    json.time line[:time].to_f
+    json.text line[:text]
 end
