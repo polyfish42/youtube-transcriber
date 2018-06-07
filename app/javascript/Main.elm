@@ -52,7 +52,8 @@ init =
 view : Model -> Html Msg
 view model =
     div []
-        [ input [ onInput UpdateUri ] []
+        [ p [] [text model.errorMessage]
+        , input [ onInput UpdateUri ] []
         , button [ onClick FetchCaptions ] [ text <| "Submit" ]
         ]
 
