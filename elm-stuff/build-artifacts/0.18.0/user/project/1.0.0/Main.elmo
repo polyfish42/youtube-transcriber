@@ -50,17 +50,38 @@ var _user$project$Main$videoId = function (uri) {
 var _user$project$Main$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
+var _user$project$Main$noHTMLCode = function (capText) {
+	return A4(
+		_elm_lang$core$Regex$replace,
+		_elm_lang$core$Regex$All,
+		_elm_lang$core$Regex$regex('&#39;'),
+		function (_p1) {
+			return '\'';
+		},
+		capText);
+};
+var _user$project$Main$formatCaptions = function (captions) {
+	return A2(
+		_elm_lang$core$List$map,
+		function (cap) {
+			return {
+				time: cap.time,
+				text: _user$project$Main$noHTMLCode(cap.text)
+			};
+		},
+		captions);
+};
 var _user$project$Main$errorMessage = function (message) {
-	var _p1 = message;
-	switch (_p1.ctor) {
+	var _p2 = message;
+	switch (_p2.ctor) {
 		case 'BadUrl':
-			return _p1._0;
+			return _p2._0;
 		case 'BadPayload':
-			return _p1._0;
+			return _p2._0;
 		case 'NetworkError':
 			return 'We weren\'t able to fetch the captions for this video. Please check your internet connection.';
 		case 'BadStatus':
-			return _p1._0.body;
+			return _p2._0.body;
 		default:
 			return 'There was an error processing your request';
 	}
@@ -119,11 +140,7 @@ var _user$project$Main$viewCaptions = function (captions) {
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							_user$project$Main$viewTime(caption.time),
-							A2(_elm_lang$core$Basics_ops['++'], ': ', caption.text))),
+					_0: _elm_lang$html$Html$text(caption.text),
 					_1: {ctor: '[]'}
 				});
 		},
@@ -139,14 +156,14 @@ var _user$project$Main$fetchCaptions = function (uri) {
 };
 var _user$project$Main$update = F2(
 	function (message, model) {
-		var _p2 = message;
-		switch (_p2.ctor) {
+		var _p3 = message;
+		switch (_p3.ctor) {
 			case 'UpdateUri':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{uri: _p2._0}),
+						{uri: _p3._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'FetchCaptions':
@@ -156,12 +173,14 @@ var _user$project$Main$update = F2(
 					_1: _user$project$Main$fetchCaptions(model.uri)
 				};
 			case 'NewCaptions':
-				if (_p2._0.ctor === 'Ok') {
+				if (_p3._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{captions: _p2._0._0}),
+							{
+								captions: _user$project$Main$formatCaptions(_p3._0._0)
+							}),
 						_1: _user$project$Main$loadVideo(
 							_user$project$Main$videoId(model.uri))
 					};
@@ -171,7 +190,7 @@ var _user$project$Main$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								errorMessage: _user$project$Main$errorMessage(_p2._0._0)
+								errorMessage: _user$project$Main$errorMessage(_p3._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -180,7 +199,7 @@ var _user$project$Main$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Main$skipToTime(_p2._0)
+					_1: _user$project$Main$skipToTime(_p3._0)
 				};
 		}
 	});

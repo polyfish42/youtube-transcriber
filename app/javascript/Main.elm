@@ -78,7 +78,7 @@ update message model =
             ( model, fetchCaptions model.uri )
 
         NewCaptions (Ok newCaptions) ->
-            ( { model | captions = newCaptions }, loadVideo (videoId model.uri) )
+            ( { model | captions = formatCaptions newCaptions }, loadVideo (videoId model.uri) )
 
         NewCaptions (Err message) ->
             ( { model | errorMessage = errorMessage message }, Cmd.none )
@@ -130,6 +130,16 @@ captionDecoder =
         (field "text" string)
 
 
+formatCaptions : List Caption -> List Caption
+formatCaptions captions =
+    List.map (\cap -> { time = cap.time, text = noHTMLCode cap.text }) captions
+
+
+noHTMLCode : String -> String
+noHTMLCode capText =
+    Regex.replace Regex.All (regex "&#39;") (\_ -> "'") capText
+
+
 
 -- SUBSCRIPTIONS
 
@@ -176,7 +186,7 @@ viewCaptions captions =
                 [ onClick <| SkipToTime caption.time
                 , class "transcript__caption"
                 ]
-                [ text <| viewTime caption.time ++ ": " ++ caption.text ]
+                [ text caption.text ]
         )
         captions
 
