@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (attribute, src)
@@ -48,47 +48,6 @@ init =
 
 
 
--- VIEW
--- <iframe width="560" height="315" src="https://www.youtube.com/embed/7Tx4PXDW35g" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-
-
-view : Model -> Html Msg
-view model =
-    div []
-        [ p [] [ text model.errorMessage ]
-        , viewVideo model.uri
-        , input [ onInput UpdateUri ] []
-        , button [ onClick FetchCaptions ] [ text <| "Submit" ]
-        , div [] <| viewCaptions model.captions
-        ]
-
-
-viewVideo : String -> Html Msg
-viewVideo uri =
-    let
-        videoCode =
-            find (Regex.AtMost 1) (regex "\\?v=(.+)$") uri
-                |> List.map .submatches
-    in
-    case videoCode of
-        [ [ Just code ] ] ->
-            viewIframe code
-
-        _ ->
-           p [] [ text <| "video not found" ]
-
-
-viewIframe : String -> Html Msg
-viewIframe videoCode =
-    iframe [ src ("https://www.youtube.com/embed/" ++ videoCode), attribute "frameborder" "0" ] []
-
-
-viewCaptions : List Caption -> List (Html Msg)
-viewCaptions captions =
-    List.map (\caption -> p [] [ text <| toString caption.time ++ ": " ++ caption.text ]) captions
-
-
-
 -- MESSAGE
 
 
@@ -102,6 +61,9 @@ type Msg
 -- UPDATE
 
 
+port loadVideo : Maybe String -> Cmd msg
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -112,7 +74,7 @@ update message model =
             ( model, fetchCaptions model.uri )
 
         NewCaptions (Ok newCaptions) ->
-            ( { model | captions = newCaptions }, Cmd.none )
+            ( { model | captions = newCaptions }, loadVideo (videoId model.uri) )
 
         NewCaptions (Err message) ->
             ( { model | errorMessage = errorMessage message }, Cmd.none )
@@ -168,3 +130,42 @@ captionDecoder =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+
+-- VIEW
+
+
+view : Model -> Html Msg
+view model =
+    div []
+        [ p [] [ text model.errorMessage ]
+        , input [ onInput UpdateUri ] []
+        , button [ onClick FetchCaptions ] [ text <| "Submit" ]
+        , div [] <| viewCaptions model.captions
+        ]
+
+
+videoId : String -> Maybe String
+videoId uri =
+    let
+        videoCode =
+            find (Regex.AtMost 1) (regex "\\?v=(.+)$") uri
+                |> List.map .submatches
+    in
+    case videoCode of
+        [ [ Just code ] ] ->
+            Just code
+
+        _ ->
+            Nothing
+
+
+viewIframe : String -> Html Msg
+viewIframe videoCode =
+    iframe [ src ("https://www.youtube.com/embed/" ++ videoCode), attribute "frameborder" "0" ] []
+
+
+viewCaptions : List Caption -> List (Html Msg)
+viewCaptions captions =
+    List.map (\caption -> p [] [ text <| toString caption.time ++ ": " ++ caption.text ]) captions

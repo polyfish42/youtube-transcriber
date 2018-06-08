@@ -1,21 +1,3 @@
-var _user$project$Main$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$none;
-};
-var _user$project$Main$errorMessage = function (message) {
-	var _p0 = message;
-	switch (_p0.ctor) {
-		case 'BadUrl':
-			return _p0._0;
-		case 'BadPayload':
-			return _p0._0;
-		case 'NetworkError':
-			return 'We weren\'t able to fetch the captions for this video. Please check your internet connection.';
-		case 'BadStatus':
-			return _p0._0.body;
-		default:
-			return 'There was an error processing your request';
-	}
-};
 var _user$project$Main$viewCaptions = function (captions) {
 	return A2(
 		_elm_lang$core$List$map,
@@ -50,7 +32,7 @@ var _user$project$Main$viewIframe = function (videoCode) {
 		},
 		{ctor: '[]'});
 };
-var _user$project$Main$viewVideo = function (uri) {
+var _user$project$Main$videoId = function (uri) {
 	var videoCode = A2(
 		_elm_lang$core$List$map,
 		function (_) {
@@ -61,20 +43,36 @@ var _user$project$Main$viewVideo = function (uri) {
 			_elm_lang$core$Regex$AtMost(1),
 			_elm_lang$core$Regex$regex('\\?v=(.+)$'),
 			uri));
-	var _p1 = videoCode;
-	if (((((_p1.ctor === '::') && (_p1._0.ctor === '::')) && (_p1._0._0.ctor === 'Just')) && (_p1._0._1.ctor === '[]')) && (_p1._1.ctor === '[]')) {
-		return _user$project$Main$viewIframe(_p1._0._0._0);
+	var _p0 = videoCode;
+	if (((((_p0.ctor === '::') && (_p0._0.ctor === '::')) && (_p0._0._0.ctor === 'Just')) && (_p0._0._1.ctor === '[]')) && (_p0._1.ctor === '[]')) {
+		return _elm_lang$core$Maybe$Just(_p0._0._0._0);
 	} else {
-		return A2(
-			_elm_lang$html$Html$p,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('video not found'),
-				_1: {ctor: '[]'}
-			});
+		return _elm_lang$core$Maybe$Nothing;
 	}
 };
+var _user$project$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _user$project$Main$errorMessage = function (message) {
+	var _p1 = message;
+	switch (_p1.ctor) {
+		case 'BadUrl':
+			return _p1._0;
+		case 'BadPayload':
+			return _p1._0;
+		case 'NetworkError':
+			return 'We weren\'t able to fetch the captions for this video. Please check your internet connection.';
+		case 'BadStatus':
+			return _p1._0.body;
+		default:
+			return 'There was an error processing your request';
+	}
+};
+var _user$project$Main$loadVideo = _elm_lang$core$Native_Platform.outgoingPort(
+	'loadVideo',
+	function (v) {
+		return (v.ctor === 'Nothing') ? null : v._0;
+	});
 var _user$project$Main$Model = F3(
 	function (a, b, c) {
 		return {uri: a, captions: b, errorMessage: c};
@@ -131,7 +129,8 @@ var _user$project$Main$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{captions: _p2._0._0}),
-						_1: _elm_lang$core$Platform_Cmd$none
+						_1: _user$project$Main$loadVideo(
+							_user$project$Main$videoId(model.uri))
 					};
 				} else {
 					return {
@@ -166,39 +165,35 @@ var _user$project$Main$view = function (model) {
 				}),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Main$viewVideo(model.uri),
+				_0: A2(
+					_elm_lang$html$Html$input,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateUri),
+						_1: {ctor: '[]'}
+					},
+					{ctor: '[]'}),
 				_1: {
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$input,
+						_elm_lang$html$Html$button,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateUri),
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$FetchCaptions),
 							_1: {ctor: '[]'}
 						},
-						{ctor: '[]'}),
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Submit'),
+							_1: {ctor: '[]'}
+						}),
 					_1: {
 						ctor: '::',
 						_0: A2(
-							_elm_lang$html$Html$button,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$FetchCaptions),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('Submit'),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{ctor: '[]'},
-								_user$project$Main$viewCaptions(model.captions)),
-							_1: {ctor: '[]'}
-						}
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							_user$project$Main$viewCaptions(model.captions)),
+						_1: {ctor: '[]'}
 					}
 				}
 			}
