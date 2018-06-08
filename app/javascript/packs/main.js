@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ports
 
   app.ports.loadVideo.subscribe(function(videoId){
-    console.log(videoId)
+    loadVideo(videoId)
   })
 
   // YouTube Player
@@ -19,16 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
   var player;
-  window.onYouTubeIframeAPIReady = function () {
+  const loadVideo  = function (videoId) {
     player = new YT.Player('player', {
       height: '390',
       width: '640',
-      videoId: 'M7lc1UVf-VE',
+      videoId: videoId,
       events: {
         'onReady': onPlayerReady,
         'onStateChange': onPlayerStateChange
       }
     });
+  }
+
+  window.onYouTubeIframeAPIReady = function () {
+    console.log("hello")  
   }
 
   window.onPlayerReady = function (event) {
