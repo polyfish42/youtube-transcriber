@@ -1,22 +1,3 @@
-var _user$project$Main$viewCaptions = function (captions) {
-	return A2(
-		_elm_lang$core$List$map,
-		function (caption) {
-			return A2(
-				_elm_lang$html$Html$p,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(caption.time),
-							A2(_elm_lang$core$Basics_ops['++'], ': ', caption.text))),
-					_1: {ctor: '[]'}
-				});
-		},
-		captions);
-};
 var _user$project$Main$viewIframe = function (videoCode) {
 	return A2(
 		_elm_lang$html$Html$iframe,
@@ -73,6 +54,11 @@ var _user$project$Main$loadVideo = _elm_lang$core$Native_Platform.outgoingPort(
 	function (v) {
 		return (v.ctor === 'Nothing') ? null : v._0;
 	});
+var _user$project$Main$skipToTime = _elm_lang$core$Native_Platform.outgoingPort(
+	'skipToTime',
+	function (v) {
+		return v;
+	});
 var _user$project$Main$Model = F3(
 	function (a, b, c) {
 		return {uri: a, captions: b, errorMessage: c};
@@ -96,6 +82,33 @@ var _user$project$Main$captionDecoder = A3(
 	A2(_elm_lang$core$Json_Decode$field, 'time', _elm_lang$core$Json_Decode$float),
 	A2(_elm_lang$core$Json_Decode$field, 'text', _elm_lang$core$Json_Decode$string));
 var _user$project$Main$decodeCaptionJson = _elm_lang$core$Json_Decode$list(_user$project$Main$captionDecoder);
+var _user$project$Main$SkipToTime = function (a) {
+	return {ctor: 'SkipToTime', _0: a};
+};
+var _user$project$Main$viewCaptions = function (captions) {
+	return A2(
+		_elm_lang$core$List$map,
+		function (caption) {
+			return A2(
+				_elm_lang$html$Html$p,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Events$onClick(
+						_user$project$Main$SkipToTime(caption.time)),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(caption.time),
+							A2(_elm_lang$core$Basics_ops['++'], ': ', caption.text))),
+					_1: {ctor: '[]'}
+				});
+		},
+		captions);
+};
 var _user$project$Main$NewCaptions = function (a) {
 	return {ctor: 'NewCaptions', _0: a};
 };
@@ -122,7 +135,7 @@ var _user$project$Main$update = F2(
 					_0: model,
 					_1: _user$project$Main$fetchCaptions(model.uri)
 				};
-			default:
+			case 'NewCaptions':
 				if (_p2._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
@@ -143,6 +156,12 @@ var _user$project$Main$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Main$skipToTime(_p2._0)
+				};
 		}
 	});
 var _user$project$Main$FetchCaptions = {ctor: 'FetchCaptions'};

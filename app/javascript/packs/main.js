@@ -6,8 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Ports
 
-  app.ports.loadVideo.subscribe(function(videoId){
+  app.ports.loadVideo.subscribe(function (videoId) {
     loadVideo(videoId)
+  })
+
+  app.ports.skipToTime.subscribe(function (time) {
+    player.seekTo(time, true)
   })
 
   // YouTube Player
@@ -19,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
   var player;
-  const loadVideo  = function (videoId) {
+  const loadVideo = function (videoId) {
     player = new YT.Player('player', {
       height: '390',
       width: '640',
@@ -32,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.onYouTubeIframeAPIReady = function () {
-    console.log("hello")  
+    console.log("hello")
   }
 
   window.onPlayerReady = function (event) {

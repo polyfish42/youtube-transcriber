@@ -55,6 +55,7 @@ type Msg
     = UpdateUri String
     | FetchCaptions
     | NewCaptions (Result Http.Error (List Caption))
+    | SkipToTime Float
 
 
 
@@ -62,7 +63,7 @@ type Msg
 
 
 port loadVideo : Maybe String -> Cmd msg
-
+port skipToTime : Float -> Cmd msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -78,6 +79,9 @@ update message model =
 
         NewCaptions (Err message) ->
             ( { model | errorMessage = errorMessage message }, Cmd.none )
+
+        SkipToTime time ->
+            (model, skipToTime time)
 
 
 errorMessage : Http.Error -> String
@@ -168,4 +172,4 @@ viewIframe videoCode =
 
 viewCaptions : List Caption -> List (Html Msg)
 viewCaptions captions =
-    List.map (\caption -> p [] [ text <| toString caption.time ++ ": " ++ caption.text ]) captions
+    List.map (\caption -> p [onClick <| SkipToTime caption.time] [ text <| toString caption.time ++ ": " ++ caption.text ]) captions
