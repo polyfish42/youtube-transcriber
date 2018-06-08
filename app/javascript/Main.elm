@@ -1,7 +1,7 @@
 port module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (attribute, src)
+import Html.Attributes exposing (attribute, class, src)
 import Html.Events exposing (onClick, onInput)
 import Http exposing (get, send)
 import Json.Decode exposing (Decoder, field, float, list, map2, string)
@@ -63,7 +63,10 @@ type Msg
 
 
 port loadVideo : Maybe String -> Cmd msg
+
+
 port skipToTime : Float -> Cmd msg
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
@@ -81,7 +84,7 @@ update message model =
             ( { model | errorMessage = errorMessage message }, Cmd.none )
 
         SkipToTime time ->
-            (model, skipToTime time)
+            ( model, skipToTime time )
 
 
 errorMessage : Http.Error -> String
@@ -146,7 +149,7 @@ view model =
         [ p [] [ text model.errorMessage ]
         , input [ onInput UpdateUri ] []
         , button [ onClick FetchCaptions ] [ text <| "Submit" ]
-        , div [] <| viewCaptions model.captions
+        , div [ class "transcript" ] <| viewCaptions model.captions
         ]
 
 
@@ -165,11 +168,43 @@ videoId uri =
             Nothing
 
 
-viewIframe : String -> Html Msg
-viewIframe videoCode =
-    iframe [ src ("https://www.youtube.com/embed/" ++ videoCode), attribute "frameborder" "0" ] []
-
-
 viewCaptions : List Caption -> List (Html Msg)
 viewCaptions captions =
-    List.map (\caption -> p [onClick <| SkipToTime caption.time] [ text <| toString caption.time ++ ": " ++ caption.text ]) captions
+    List.map
+        (\caption ->
+            p
+                [ onClick <| SkipToTime caption.time
+                , class "transcript__caption"
+                ]
+                [ text <| viewTime caption.time ++ ": " ++ caption.text ]
+        )
+        captions
+
+
+viewTime : Float -> String
+viewTime time =
+    let
+        totalSeconds =
+            floor time
+
+        seconds =
+            totalSeconds % 60
+
+        minutes =
+            (totalSeconds // 60) % 60
+
+        hours =
+            (totalSeconds // (60 * 60)) % 60
+    in
+    if totalSeconds > 60 * 60 then
+        padTime hours ++ ":" ++ padTime minutes ++ ":" ++ padTime seconds
+    else
+        padTime minutes ++ ":" ++ padTime seconds
+
+
+padTime : Int -> String
+padTime time =
+    if time < 10 then
+        "0" ++ toString time
+    else
+        toString time

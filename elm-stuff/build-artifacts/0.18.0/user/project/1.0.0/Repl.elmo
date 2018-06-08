@@ -1,6 +1,2 @@
 var _user$project$Repl$t_s_o_l = {ctor: '_Tuple0'};
-var _user$project$Repl$d_e_l_t_r_o_n_3_0_3_0 = A2(
-	_elm_lang$core$Json_Decode$decodeString,
-	_elm_lang$core$Json_Decode$list(
-		A2(_elm_lang$core$Json_Decode$field, 'time', _elm_lang$core$Json_Decode$float)),
-	'[{\"time\": 3.14}]');
+var _user$project$Repl$d_e_l_t_r_o_n_3_0_3_0 = A2(_elm_lang$core$Basics_ops['%'], (65 / 60) | 0, 60);

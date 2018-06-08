@@ -1,17 +1,33 @@
-var _user$project$Main$viewIframe = function (videoCode) {
-	return A2(
-		_elm_lang$html$Html$iframe,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$src(
-				A2(_elm_lang$core$Basics_ops['++'], 'https://www.youtube.com/embed/', videoCode)),
-			_1: {
-				ctor: '::',
-				_0: A2(_elm_lang$html$Html_Attributes$attribute, 'frameborder', '0'),
-				_1: {ctor: '[]'}
-			}
-		},
-		{ctor: '[]'});
+var _user$project$Main$padTime = function (time) {
+	return (_elm_lang$core$Native_Utils.cmp(time, 10) < 0) ? A2(
+		_elm_lang$core$Basics_ops['++'],
+		'0',
+		_elm_lang$core$Basics$toString(time)) : _elm_lang$core$Basics$toString(time);
+};
+var _user$project$Main$viewTime = function (time) {
+	var totalSeconds = _elm_lang$core$Basics$floor(time);
+	var seconds = A2(_elm_lang$core$Basics_ops['%'], totalSeconds, 60);
+	var minutes = A2(_elm_lang$core$Basics_ops['%'], (totalSeconds / 60) | 0, 60);
+	var hours = A2(_elm_lang$core$Basics_ops['%'], (totalSeconds / (60 * 60)) | 0, 60);
+	return (_elm_lang$core$Native_Utils.cmp(totalSeconds, 60 * 60) > 0) ? A2(
+		_elm_lang$core$Basics_ops['++'],
+		_user$project$Main$padTime(hours),
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			':',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				_user$project$Main$padTime(minutes),
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					':',
+					_user$project$Main$padTime(seconds))))) : A2(
+		_elm_lang$core$Basics_ops['++'],
+		_user$project$Main$padTime(minutes),
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			':',
+			_user$project$Main$padTime(seconds)));
 };
 var _user$project$Main$videoId = function (uri) {
 	var videoCode = A2(
@@ -95,14 +111,18 @@ var _user$project$Main$viewCaptions = function (captions) {
 					ctor: '::',
 					_0: _elm_lang$html$Html_Events$onClick(
 						_user$project$Main$SkipToTime(caption.time)),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('transcript__caption'),
+						_1: {ctor: '[]'}
+					}
 				},
 				{
 					ctor: '::',
 					_0: _elm_lang$html$Html$text(
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(caption.time),
+							_user$project$Main$viewTime(caption.time),
 							A2(_elm_lang$core$Basics_ops['++'], ': ', caption.text))),
 					_1: {ctor: '[]'}
 				});
@@ -210,7 +230,11 @@ var _user$project$Main$view = function (model) {
 						ctor: '::',
 						_0: A2(
 							_elm_lang$html$Html$div,
-							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('transcript'),
+								_1: {ctor: '[]'}
+							},
 							_user$project$Main$viewCaptions(model.captions)),
 						_1: {ctor: '[]'}
 					}
