@@ -1,6 +1,6 @@
 port module Main exposing (..)
 
-import Combine exposing ((*>), end, manyTill, or, parse, regex)
+import Combine exposing ((*>), (>>=), end, manyTill, or, parse, regex, while)
 import Combine.Char exposing (anyChar)
 import Debug
 import Html exposing (..)
@@ -121,11 +121,22 @@ videoId uri =
 
 youTubeURIParser : Combine.Parser state String
 youTubeURIParser =
-    Combine.string "https://www.youtube.com/watch?"
-        *> manyTill anyChar (Combine.regex "v=")
-        *> manyTill anyChar (or (Combine.string "&") (Combine.string ""))
-        |> Combine.map (List.map (\c -> String.fromChar c))
-        |> Combine.map (String.join "")
+    let
+        normalURI =
+            manyTill anyChar (Combine.regex "v=")
+                *> while ((/=) '&')
+
+        shareURI =
+            while ((/=) '?')
+
+        chooseParser str =
+            if str == "https://www.youtube.com/watch?" then
+                normalURI
+            else
+                shareURI
+    in
+    or (Combine.string "https://www.youtube.com/watch?") (Combine.string "https://youtu.be/")
+        >>= chooseParser
 
 
 fetchCaptions : String -> Cmd Msg

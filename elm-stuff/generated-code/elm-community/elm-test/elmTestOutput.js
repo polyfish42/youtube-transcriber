@@ -16351,31 +16351,36 @@ var _user$project$Main$formatCaptions = function (captions) {
 		},
 		captions);
 };
-var _user$project$Main$youTubeURIParser = A2(
-	_elm_community$parser_combinators$Combine$map,
-	_elm_lang$core$String$join(''),
-	A2(
-		_elm_community$parser_combinators$Combine$map,
-		_elm_lang$core$List$map(
-			function (c) {
-				return _elm_lang$core$String$fromChar(c);
-			}),
+var _user$project$Main$youTubeURIParser = function () {
+	var shareURI = _elm_community$parser_combinators$Combine$while(
+		F2(
+			function (x, y) {
+				return !_elm_lang$core$Native_Utils.eq(x, y);
+			})(
+			_elm_lang$core$Native_Utils.chr('?')));
+	var normalURI = A2(
+		_elm_community$parser_combinators$Combine_ops['*>'],
 		A2(
-			_elm_community$parser_combinators$Combine_ops['*>'],
-			A2(
-				_elm_community$parser_combinators$Combine_ops['*>'],
-				_elm_community$parser_combinators$Combine$string('https://www.youtube.com/watch?'),
-				A2(
-					_elm_community$parser_combinators$Combine$manyTill,
-					_elm_community$parser_combinators$Combine_Char$anyChar,
-					_elm_community$parser_combinators$Combine$regex('v='))),
-			A2(
-				_elm_community$parser_combinators$Combine$manyTill,
-				_elm_community$parser_combinators$Combine_Char$anyChar,
-				A2(
-					_elm_community$parser_combinators$Combine$or,
-					_elm_community$parser_combinators$Combine$string('&'),
-					_elm_community$parser_combinators$Combine$string(''))))));
+			_elm_community$parser_combinators$Combine$manyTill,
+			_elm_community$parser_combinators$Combine_Char$anyChar,
+			_elm_community$parser_combinators$Combine$regex('v=')),
+		_elm_community$parser_combinators$Combine$while(
+			F2(
+				function (x, y) {
+					return !_elm_lang$core$Native_Utils.eq(x, y);
+				})(
+				_elm_lang$core$Native_Utils.chr('&'))));
+	var chooseParser = function (str) {
+		return _elm_lang$core$Native_Utils.eq(str, 'https://www.youtube.com/watch?') ? normalURI : shareURI;
+	};
+	return A2(
+		_elm_community$parser_combinators$Combine_ops['>>='],
+		A2(
+			_elm_community$parser_combinators$Combine$or,
+			_elm_community$parser_combinators$Combine$string('https://www.youtube.com/watch?'),
+			_elm_community$parser_combinators$Combine$string('https://youtu.be/')),
+		chooseParser);
+}();
 var _user$project$Main$videoId = function (uri) {
 	var _p1 = A2(_elm_community$parser_combinators$Combine$parse, _user$project$Main$youTubeURIParser, uri);
 	if (_p1.ctor === 'Ok') {
@@ -16584,15 +16589,41 @@ var _user$project$MainTest$suite = A2(
 		ctor: '::',
 		_0: A2(
 			_elm_community$elm_test$Test$test,
-			'Grabs YouTube Id out of URL',
+			'Grabs YouTube Id out of URL with other parameters present',
 			function (_p0) {
-				var uri = 'https://www.youtube.com/watch?v=y62zj9ozPOM&t=384';
+				var uri = 'https://www.youtube.com/watch?v=y62zj9ozPOM&t=15m26s';
 				return A2(
 					_elm_community$elm_test$Expect$equal,
 					'y62zj9ozPOM',
 					_user$project$Main$videoId(uri));
 			}),
-		_1: {ctor: '[]'}
+		_1: {
+			ctor: '::',
+			_0: A2(
+				_elm_community$elm_test$Test$test,
+				'Grabs YouTube Id out of URL with no other parameters present',
+				function (_p1) {
+					var uri = 'https://www.youtube.com/watch?v=y62zj9ozPOM';
+					return A2(
+						_elm_community$elm_test$Expect$equal,
+						'y62zj9ozPOM',
+						_user$project$Main$videoId(uri));
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_community$elm_test$Test$test,
+					'Handles share video url',
+					function (_p2) {
+						var uri = 'https://youtu.be/y62zj9ozPOM?t=15m26s';
+						return A2(
+							_elm_community$elm_test$Expect$equal,
+							'y62zj9ozPOM',
+							_user$project$Main$videoId(uri));
+					}),
+				_1: {ctor: '[]'}
+			}
+		}
 	});
 
 var _user$project$Native_RunTest = (function() {
@@ -19178,7 +19209,7 @@ return module.exports;
 })({});
 var initialSeed = null;
 var report = "console";
-var pipeFilename = "/tmp/elm_test-9083.sock";
+var pipeFilename = "/tmp/elm_test-10515.sock";
 // Make sure necessary things are defined.
 if (typeof Elm === "undefined") {
   throw "test runner config error: Elm is not defined. Make sure you provide a file compiled by Elm!";

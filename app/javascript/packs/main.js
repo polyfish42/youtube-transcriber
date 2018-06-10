@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.onYouTubeIframeAPIReady = function () {
-    console.log("hello")  
+    undefined
   }
 
   window.onPlayerReady = function (event) {
