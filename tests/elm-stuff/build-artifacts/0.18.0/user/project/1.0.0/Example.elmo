@@ -1,0 +1,17 @@
+var _user$project$Example$suite = A2(
+	_elm_community$elm_test$Test$describe,
+	'Parse URL',
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_community$elm_test$Test$test,
+			'Grabs YouTube Id out of URL',
+			function (_p0) {
+				var uri = 'https://www.youtube.com/watch?v=y62zj9ozPOM&t=384';
+				return A2(
+					_elm_community$elm_test$Expect$equal,
+					'y62zj9ozPOM',
+					_user$project$Main$videoId(uri));
+			}),
+		_1: {ctor: '[]'}
+	});

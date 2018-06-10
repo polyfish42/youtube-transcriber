@@ -1,0 +1,269 @@
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$styleToString = function (style) {
+	return A2(
+		_elm_lang$core$String$join,
+		' ',
+		A2(
+			_elm_lang$core$List$map,
+			function (_p0) {
+				var _p1 = _p0;
+				return A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p1._0,
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						':',
+						A2(_elm_lang$core$Basics_ops['++'], _p1._1, ';')));
+			},
+			style));
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$selectorToString = function (criteria) {
+	var _p2 = criteria;
+	switch (_p2.ctor) {
+		case 'All':
+			return A2(
+				_elm_lang$core$String$join,
+				' ',
+				A2(_elm_lang$core$List$map, _eeue56$elm_html_test$Test_Html_Selector_Internal$selectorToString, _p2._0));
+		case 'Classes':
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'classes ',
+				_elm_lang$core$Basics$toString(
+					A2(_elm_lang$core$String$join, ' ', _p2._0)));
+		case 'Class':
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'class ',
+				_elm_lang$core$Basics$toString(_p2._0));
+		case 'Attribute':
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'attribute ',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(_p2._0.name),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						' ',
+						_elm_lang$core$Basics$toString(_p2._0.value))));
+		case 'BoolAttribute':
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'attribute ',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_elm_lang$core$Basics$toString(_p2._0.name),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						' ',
+						_elm_lang$core$Basics$toString(_p2._0.value))));
+		case 'Style':
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'styles ',
+				_eeue56$elm_html_test$Test_Html_Selector_Internal$styleToString(_p2._0));
+		case 'Tag':
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'tag ',
+				_elm_lang$core$Basics$toString(_p2._0));
+		case 'Text':
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'text ',
+				_elm_lang$core$Basics$toString(_p2._0));
+		case 'Containing':
+			var selectors = A2(
+				_elm_lang$core$String$join,
+				', ',
+				A2(_elm_lang$core$List$map, _eeue56$elm_html_test$Test_Html_Selector_Internal$selectorToString, _p2._0));
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'containing [ ',
+				A2(_elm_lang$core$Basics_ops['++'], selectors, ' ] '));
+		default:
+			return 'invalid';
+	}
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$Invalid = {ctor: 'Invalid'};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$Containing = function (a) {
+	return {ctor: 'Containing', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$Text = function (a) {
+	return {ctor: 'Text', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$Tag = function (a) {
+	return {ctor: 'Tag', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$Style = function (a) {
+	return {ctor: 'Style', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$BoolAttribute = function (a) {
+	return {ctor: 'BoolAttribute', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$namedBoolAttr = F2(
+	function (name, value) {
+		return _eeue56$elm_html_test$Test_Html_Selector_Internal$BoolAttribute(
+			{name: name, value: value});
+	});
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$Attribute = function (a) {
+	return {ctor: 'Attribute', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$namedAttr = F2(
+	function (name, value) {
+		return _eeue56$elm_html_test$Test_Html_Selector_Internal$Attribute(
+			{name: name, value: value});
+	});
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$Class = function (a) {
+	return {ctor: 'Class', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$Classes = function (a) {
+	return {ctor: 'Classes', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$All = function (a) {
+	return {ctor: 'All', _0: a};
+};
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$query = F4(
+	function (fn, fnAll, selector, list) {
+		var _p3 = list;
+		if (_p3.ctor === '[]') {
+			return list;
+		} else {
+			var _p8 = _p3;
+			var _p4 = selector;
+			switch (_p4.ctor) {
+				case 'All':
+					return A2(fnAll, _p4._0, _p8);
+				case 'Classes':
+					return A2(
+						_elm_lang$core$List$concatMap,
+						fn(
+							_eeue56$elm_html_query$ElmHtml_Query$ClassList(_p4._0)),
+						_p8);
+				case 'Class':
+					return A2(
+						_elm_lang$core$List$concatMap,
+						fn(
+							_eeue56$elm_html_query$ElmHtml_Query$ClassList(
+								{
+									ctor: '::',
+									_0: _p4._0,
+									_1: {ctor: '[]'}
+								})),
+						_p8);
+				case 'Attribute':
+					return A2(
+						_elm_lang$core$List$concatMap,
+						fn(
+							A2(_eeue56$elm_html_query$ElmHtml_Query$Attribute, _p4._0.name, _p4._0.value)),
+						_p8);
+				case 'BoolAttribute':
+					return A2(
+						_elm_lang$core$List$concatMap,
+						fn(
+							A2(_eeue56$elm_html_query$ElmHtml_Query$BoolAttribute, _p4._0.name, _p4._0.value)),
+						_p8);
+				case 'Style':
+					return A2(
+						_elm_lang$core$List$concatMap,
+						fn(
+							_eeue56$elm_html_query$ElmHtml_Query$Style(_p4._0)),
+						_p8);
+				case 'Tag':
+					return A2(
+						_elm_lang$core$List$concatMap,
+						fn(
+							_eeue56$elm_html_query$ElmHtml_Query$Tag(_p4._0)),
+						_p8);
+				case 'Text':
+					return A2(
+						_elm_lang$core$List$concatMap,
+						fn(
+							_eeue56$elm_html_query$ElmHtml_Query$ContainsText(_p4._0)),
+						_p8);
+				case 'Containing':
+					var anyDescendantsMatch = function (elem) {
+						var _p5 = _eeue56$elm_html_query$ElmHtml_Query$getChildren(elem);
+						if (_p5.ctor === '[]') {
+							return false;
+						} else {
+							var _p7 = _p5;
+							var _p6 = A4(
+								_eeue56$elm_html_test$Test_Html_Selector_Internal$query,
+								fn,
+								fnAll,
+								_eeue56$elm_html_test$Test_Html_Selector_Internal$All(_p4._0),
+								_p7);
+							if (_p6.ctor === '[]') {
+								return A2(_elm_lang$core$List$any, anyDescendantsMatch, _p7);
+							} else {
+								return true;
+							}
+						}
+					};
+					return A2(_elm_lang$core$List$filter, anyDescendantsMatch, _p8);
+				default:
+					return {ctor: '[]'};
+			}
+		}
+	});
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$queryAll = F2(
+	function (selectors, list) {
+		queryAll:
+		while (true) {
+			var _p9 = selectors;
+			if (_p9.ctor === '[]') {
+				return list;
+			} else {
+				var _v7 = _p9._1,
+					_v8 = A4(_eeue56$elm_html_test$Test_Html_Selector_Internal$query, _eeue56$elm_html_query$ElmHtml_Query$query, _eeue56$elm_html_test$Test_Html_Selector_Internal$queryAll, _p9._0, list);
+				selectors = _v7;
+				list = _v8;
+				continue queryAll;
+			}
+		}
+	});
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$hasAll = F2(
+	function (selectors, elems) {
+		hasAll:
+		while (true) {
+			var _p10 = selectors;
+			if (_p10.ctor === '[]') {
+				return true;
+			} else {
+				if (_elm_lang$core$List$isEmpty(
+					A2(
+						_eeue56$elm_html_test$Test_Html_Selector_Internal$queryAll,
+						{
+							ctor: '::',
+							_0: _p10._0,
+							_1: {ctor: '[]'}
+						},
+						elems))) {
+					return false;
+				} else {
+					var _v10 = _p10._1,
+						_v11 = elems;
+					selectors = _v10;
+					elems = _v11;
+					continue hasAll;
+				}
+			}
+		}
+	});
+var _eeue56$elm_html_test$Test_Html_Selector_Internal$queryAllChildren = F2(
+	function (selectors, list) {
+		queryAllChildren:
+		while (true) {
+			var _p11 = selectors;
+			if (_p11.ctor === '[]') {
+				return list;
+			} else {
+				var _v13 = _p11._1,
+					_v14 = A4(_eeue56$elm_html_test$Test_Html_Selector_Internal$query, _eeue56$elm_html_query$ElmHtml_Query$queryChildren, _eeue56$elm_html_test$Test_Html_Selector_Internal$queryAllChildren, _p11._0, list);
+				selectors = _v13;
+				list = _v14;
+				continue queryAllChildren;
+			}
+		}
+	});

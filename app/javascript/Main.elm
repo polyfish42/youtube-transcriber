@@ -1,5 +1,8 @@
 port module Main exposing (..)
 
+import Combine exposing ((*>), end, manyTill, or, parse, regex)
+import Combine.Char exposing (anyChar)
+import Debug
 import Html exposing (..)
 import Html.Attributes exposing (attribute, class, src)
 import Html.Events exposing (onClick, onInput)
@@ -62,7 +65,7 @@ type Msg
 -- UPDATE
 
 
-port loadVideo : Maybe String -> Cmd msg
+port loadVideo : String -> Cmd msg
 
 
 port skipToTime : Float -> Cmd msg
@@ -106,6 +109,25 @@ errorMessage message =
             "There was an error processing your request"
 
 
+videoId : String -> String
+videoId uri =
+    case parse youTubeURIParser uri of
+        Ok ( _, stream, result ) ->
+            result
+
+        Err ( _, stream, errors ) ->
+            String.join " or " errors
+
+
+youTubeURIParser : Combine.Parser state String
+youTubeURIParser =
+    Combine.string "https://www.youtube.com/watch?"
+        *> manyTill anyChar (Combine.regex "v=")
+        *> manyTill anyChar (or (Combine.string "&") (Combine.string ""))
+        |> Combine.map (List.map (\c -> String.fromChar c))
+        |> Combine.map (String.join "")
+
+
 fetchCaptions : String -> Cmd Msg
 fetchCaptions uri =
     let
@@ -137,7 +159,7 @@ formatCaptions captions =
 
 noHTMLCode : String -> String
 noHTMLCode capText =
-    Regex.replace Regex.All (regex "&#39;") (\_ -> "'") capText
+    Regex.replace Regex.All (Regex.regex "&#39;") (\_ -> "'") capText
 
 
 
@@ -161,21 +183,6 @@ view model =
         , button [ onClick FetchCaptions ] [ text <| "Submit" ]
         , div [ class "transcript" ] <| viewCaptions model.captions
         ]
-
-
-videoId : String -> Maybe String
-videoId uri =
-    let
-        videoCode =
-            find (Regex.AtMost 1) (regex "\\?v=(.+)$") uri
-                |> List.map .submatches
-    in
-    case videoCode of
-        [ [ Just code ] ] ->
-            Just code
-
-        _ ->
-            Nothing
 
 
 viewCaptions : List Caption -> List (Html Msg)
