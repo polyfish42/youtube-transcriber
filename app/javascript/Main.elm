@@ -204,7 +204,7 @@ viewCaptions captions =
                 [ onClick <| SkipToTime caption.time
                 , class "transcript__caption"
                 ]
-                [ text caption.text ]
+                [ text <| (viewTime caption.time) ++ ": " ++ caption.text ]
         )
         captions
 

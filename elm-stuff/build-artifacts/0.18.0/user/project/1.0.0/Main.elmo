@@ -160,7 +160,11 @@ var _user$project$Main$viewCaptions = function (captions) {
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(caption.text),
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_user$project$Main$viewTime(caption.time),
+							A2(_elm_lang$core$Basics_ops['++'], ': ', caption.text))),
 					_1: {ctor: '[]'}
 				});
 		},

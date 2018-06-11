@@ -3,8 +3,9 @@ class Api::TranscriptsController < ApplicationController
     def show
         video_uri = params[:uri]
         res = Net::HTTP.get_response(URI(video_uri))
-        
+
         if res.body.include?("captionTracks")
+            
             xml_uri = caption_url(res)
             doc = Nokogiri::HTML(open(xml_uri))
 
@@ -39,6 +40,7 @@ class Api::TranscriptsController < ApplicationController
         s.skip_until(/captionTracks\\":\[\{\\"baseUrl\\":\\"/)
         uri = s.scan_until(/,/)
         uri.gsub!(/\\\\u0026/, "&").gsub!(/\\/, "").chomp!("\",")
+        p uri
     end
 
     def remove_tags(str)

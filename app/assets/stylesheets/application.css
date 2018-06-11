@@ -16,8 +16,18 @@
 
 p {
     display: inline-block;
+    margin-left: 4px;
+}
+
+.transcript {
+    width: 640px;
+    float: right;
 }
 
 .transcript__caption {
     cursor: pointer;
+}
+
+#player {
+    float: left;
 }
