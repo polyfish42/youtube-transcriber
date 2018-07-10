@@ -5,10 +5,8 @@ class Api::TranscriptsController < ApplicationController
         res = Net::HTTP.get_response(URI(video_uri))
 
         if res.body.include?("captionTracks")
-            
             xml_uri = caption_url(res)
             doc = Nokogiri::HTML(open(xml_uri))
-
             @lines = lines(doc)
 
             render "api/transcripts/show"
@@ -20,44 +18,24 @@ class Api::TranscriptsController < ApplicationController
     private
 
     def lines(doc)
-        lines = []
-        uid = 0
-
-        doc.xpath("//transcript").children.each do |text|
-            line = {}
-            line[:time] = text.attributes["start"].value
-            line[:text] = remove_tags(text.children.inner_text)
-            line[:id] = uid
-
+        doc.xpath("//transcript").children.reduce([]) do |lines, text|
+            line = {
+                time: text.attributes["start"].value,
+                text: remove_tags(text.children.inner_text)
+            }
             lines << line
-            uid += 1
         end
-        lines
     end
 
     def caption_url(res)
         s = StringScanner.new(res.body)
         s.skip_until(/captionTracks\\":\[\{\\"baseUrl\\":\\"/)
-        uri = s.scan_until(/,/)
-        uri.gsub!(/\\\\u0026/, "&").gsub!(/\\/, "").chomp!("\",")
-        p uri
+        url = s.scan_until(/,/)
+        url.gsub(/\\\\u0026/, "&").gsub(/\\/, "").chomp("\",")
     end
 
     def remove_tags(str)
-        result = ""
-        in_tag = false
-
-        str.chars.each do |s|
-            if s == ">"
-                in_tag = false
-            elsif in_tag
-                next
-            elsif s == "<"
-                in_tag = true
-            else
-                result += s
-            end
-        end
-        result
+        tag_regexp = /<[^<|^>]+>/
+        str.gsub(tag_regexp, "")
     end
 end

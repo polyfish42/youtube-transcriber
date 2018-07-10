@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   var tag = document.createElement('script')
 
-  tag.src = 'https://www.youtube.com/iframe_api';
+  tag.src = 'https://www.youtube.com/iframe_api'
   var firstScriptTag = document.getElementsByTagName('script')[0]
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
 
@@ -29,24 +29,27 @@ document.addEventListener('DOMContentLoaded', () => {
       width: '640',
       videoId: videoId,
       events: {
-        'onReady': onPlayerReady,
-        'onStateChange': onPlayerStateChange
+        'onReady': window.onPlayerReady,
+        'onStateChange': window.onPlayerStateChange
       }
     })
   }
 
   window.onYouTubeIframeAPIReady = function () {
-    undefined
+    return undefined
   }
 
   window.onPlayerReady = function (event) {
     event.target.playVideo()
+    setInterval(() => {
+      console.log(player.getCurrentTime())
+    }, 1000)
   }
 
-  var done = false
   window.onPlayerStateChange = function (event) {
-
+    console.log(event)
   }
+
   window.stopVideo = function () {
     player.stopVideo()
   }
