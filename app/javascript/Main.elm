@@ -31,7 +31,7 @@ main =
 type alias Model =
     { uri : String
     , captions : List Caption
-    , errorMessage : String
+    , errorMessage : Maybe String
     }
 
 
@@ -47,7 +47,7 @@ type alias Caption =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "" [] "", Cmd.none )
+    ( Model "" [] Nothing, Cmd.none )
 
 
 
@@ -78,13 +78,13 @@ update message model =
             ( { model | uri = uri }, Cmd.none )
 
         FetchCaptions ->
-            ( model, fetchCaptions model.uri )
+            ( { model | errorMessage = Nothing }, fetchCaptions model.uri )
 
         NewCaptions (Ok newCaptions) ->
             ( { model | captions = formatCaptions newCaptions }, loadVideo (videoId model.uri) )
 
         NewCaptions (Err message) ->
-            ( { model | errorMessage = errorMessage message }, Cmd.none )
+            ( { model | errorMessage = Just <| errorMessage message }, Cmd.none )
 
         SkipToTime time ->
             ( model, skipToTime time )
@@ -189,7 +189,7 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ p [] [ text model.errorMessage ]
+        [ p [] [ viewErrorMessage model.errorMessage ]
         , input [ onInput UpdateUri ] []
         , button [ onClick FetchCaptions ] [ text <| "Submit" ]
         , div [ class "transcript" ] <| viewCaptions model.captions
@@ -204,7 +204,7 @@ viewCaptions captions =
                 [ onClick <| SkipToTime caption.time
                 , class "transcript__caption"
                 ]
-                [ text <| (viewTime caption.time) ++ ": " ++ caption.text ]
+                [ text <| viewTime caption.time ++ ": " ++ caption.text ]
         )
         captions
 
@@ -236,3 +236,13 @@ padTime time =
         "0" ++ toString time
     else
         toString time
+
+
+viewErrorMessage : Maybe String -> Html Msg
+viewErrorMessage message =
+    case message of
+        Just message ->
+            text message
+
+        Nothing ->
+            text ""

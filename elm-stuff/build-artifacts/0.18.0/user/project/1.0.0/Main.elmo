@@ -1,3 +1,11 @@
+var _user$project$Main$viewErrorMessage = function (message) {
+	var _p0 = message;
+	if (_p0.ctor === 'Just') {
+		return _elm_lang$html$Html$text(_p0._0);
+	} else {
+		return _elm_lang$html$Html$text('');
+	}
+};
 var _user$project$Main$padTime = function (time) {
 	return (_elm_lang$core$Native_Utils.cmp(time, 10) < 0) ? A2(
 		_elm_lang$core$Basics_ops['++'],
@@ -37,7 +45,7 @@ var _user$project$Main$noHTMLCode = function (capText) {
 		_elm_lang$core$Regex$replace,
 		_elm_lang$core$Regex$All,
 		_elm_lang$core$Regex$regex('&#39;'),
-		function (_p0) {
+		function (_p1) {
 			return '\'';
 		},
 		capText);
@@ -84,24 +92,24 @@ var _user$project$Main$youTubeURIParser = function () {
 		chooseParser);
 }();
 var _user$project$Main$videoId = function (uri) {
-	var _p1 = A2(_elm_community$parser_combinators$Combine$parse, _user$project$Main$youTubeURIParser, uri);
-	if (_p1.ctor === 'Ok') {
-		return _p1._0._2;
+	var _p2 = A2(_elm_community$parser_combinators$Combine$parse, _user$project$Main$youTubeURIParser, uri);
+	if (_p2.ctor === 'Ok') {
+		return _p2._0._2;
 	} else {
-		return A2(_elm_lang$core$String$join, ' or ', _p1._0._2);
+		return A2(_elm_lang$core$String$join, ' or ', _p2._0._2);
 	}
 };
 var _user$project$Main$errorMessage = function (message) {
-	var _p2 = message;
-	switch (_p2.ctor) {
+	var _p3 = message;
+	switch (_p3.ctor) {
 		case 'BadUrl':
-			return _p2._0;
+			return _p3._0;
 		case 'BadPayload':
-			return _p2._0;
+			return _p3._0;
 		case 'NetworkError':
 			return 'We weren\'t able to fetch the captions for this video. Please check your internet connection.';
 		case 'BadStatus':
-			return _p2._0.body;
+			return _p3._0.body;
 		default:
 			return 'There was an error processing your request';
 	}
@@ -126,7 +134,7 @@ var _user$project$Main$init = {
 		_user$project$Main$Model,
 		'',
 		{ctor: '[]'},
-		''),
+		_elm_lang$core$Maybe$Nothing),
 	_1: _elm_lang$core$Platform_Cmd$none
 };
 var _user$project$Main$Caption = F2(
@@ -180,30 +188,32 @@ var _user$project$Main$fetchCaptions = function (uri) {
 };
 var _user$project$Main$update = F2(
 	function (message, model) {
-		var _p3 = message;
-		switch (_p3.ctor) {
+		var _p4 = message;
+		switch (_p4.ctor) {
 			case 'UpdateUri':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{uri: _p3._0}),
+						{uri: _p4._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'FetchCaptions':
 				return {
 					ctor: '_Tuple2',
-					_0: model,
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{errorMessage: _elm_lang$core$Maybe$Nothing}),
 					_1: _user$project$Main$fetchCaptions(model.uri)
 				};
 			case 'NewCaptions':
-				if (_p3._0.ctor === 'Ok') {
+				if (_p4._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								captions: _user$project$Main$formatCaptions(_p3._0._0)
+								captions: _user$project$Main$formatCaptions(_p4._0._0)
 							}),
 						_1: _user$project$Main$loadVideo(
 							_user$project$Main$videoId(model.uri))
@@ -214,7 +224,8 @@ var _user$project$Main$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								errorMessage: _user$project$Main$errorMessage(_p3._0._0)
+								errorMessage: _elm_lang$core$Maybe$Just(
+									_user$project$Main$errorMessage(_p4._0._0))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -223,7 +234,7 @@ var _user$project$Main$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Main$skipToTime(_p3._0)
+					_1: _user$project$Main$skipToTime(_p4._0)
 				};
 		}
 	});
@@ -242,7 +253,7 @@ var _user$project$Main$view = function (model) {
 				{ctor: '[]'},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(model.errorMessage),
+					_0: _user$project$Main$viewErrorMessage(model.errorMessage),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
