@@ -26,15 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   var player
   const loadVideo = function (videoId) {
-    player = new YT.Player('player', {
-      height: '390',
-      width: '640',
-      videoId: videoId,
-      events: {
-        'onReady': window.onPlayerReady,
-        'onStateChange': window.onPlayerStateChange
-      }
-    })
+    if (player === undefined) {
+      player = new YT.Player('player', {
+        height: '390',
+        width: '640',
+        videoId: videoId,
+        events: {
+          'onReady': window.onPlayerReady,
+          'onStateChange': window.onPlayerStateChange
+        }
+      })
+    } else {
+      player.loadVideoById(videoId)
+    }
   }
 
   window.onYouTubeIframeAPIReady = function () {
