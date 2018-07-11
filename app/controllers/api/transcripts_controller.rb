@@ -6,7 +6,7 @@ class Api::TranscriptsController < ApplicationController
 
         if res.body.include?("captionTracks")
             @captions = parseCaptions(res)
-
+            p @captions
             render "api/transcripts/show"
         else
             render json: "This video has no captions", status: 500
