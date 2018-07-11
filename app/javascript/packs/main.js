@@ -1,3 +1,5 @@
+/* global YT */
+
 import Elm from '../Main'
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,9 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.onPlayerReady = function (event) {
     event.target.playVideo()
-    setInterval(() => {
-      console.log(player.getCurrentTime())
-    }, 1000)
+    // setInterval(() => {
+    //   console.log(player.getCurrentTime())
+    // }, 1000)
   }
 
   window.onPlayerStateChange = function (event) {

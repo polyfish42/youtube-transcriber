@@ -5,9 +5,7 @@ class Api::TranscriptsController < ApplicationController
         res = Net::HTTP.get_response(URI(video_uri))
 
         if res.body.include?("captionTracks")
-            xml_uri = caption_url(res)
-            doc = Nokogiri::HTML(open(xml_uri))
-            @lines = lines(doc)
+            @captions = parseCaptions(res)
 
             render "api/transcripts/show"
         else
@@ -17,25 +15,41 @@ class Api::TranscriptsController < ApplicationController
 
     private
 
-    def lines(doc)
-        doc.xpath("//transcript").children.reduce([]) do |lines, text|
-            line = {
-                time: text.attributes["start"].value,
-                text: remove_tags(text.children.inner_text)
+    def unescape(str)
+        eval %Q{"#{str}"}
+    end
+
+    def captions(res)
+        s = StringScanner.new(res.body)
+        s.skip_until(/captionTracks\\":/)
+        captionsStr = s.scan_until(/\]/)
+        JSON.parse(unescape(captionsStr))
+    end
+
+    def parseCaptions(res)
+        captions(res).reduce([]) do |captions, caption|
+            captions << {
+                name: caption["name"]["simpleText"],
+                captions: fetchCaptions(caption["baseUrl"])
             }
-            lines << line
         end
     end
 
-    def caption_url(res)
-        s = StringScanner.new(res.body)
-        s.skip_until(/captionTracks\\":\[\{\\"baseUrl\\":\\"/)
-        url = s.scan_until(/,/)
-        url.gsub(/\\\\u0026/, "&").gsub(/\\/, "").chomp("\",")
+    def format_caption_text(str)
+        tag_regexp = /<[^<|^>]+>/
+        str.gsub!(tag_regexp, "")
+        str.gsub!(/\n/, " ")
+        HTMLEntities.new.decode(str)
     end
 
-    def remove_tags(str)
-        tag_regexp = /<[^<|^>]+>/
-        str.gsub(tag_regexp, "")
+    def fetchCaptions(xml_uri)
+        doc = Nokogiri::HTML(open(xml_uri))
+
+        doc.xpath("//transcript").children.reduce([]) do |lines, text|
+            lines << {
+                time: text.attributes["start"].value,
+                text: format_caption_text(text.children.inner_text)
+            }
+        end
     end
 end

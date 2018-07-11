@@ -2,13 +2,11 @@ port module Main exposing (..)
 
 import Combine exposing ((*>), (>>=), end, manyTill, or, parse, regex, while)
 import Combine.Char exposing (anyChar)
-import Debug
 import Html exposing (..)
-import Html.Attributes exposing (attribute, class, src)
+import Html.Attributes exposing (attribute, checked, class, selected, src, value)
 import Html.Events exposing (onClick, onInput)
 import Http exposing (get, send)
 import Json.Decode exposing (Decoder, field, float, list, map2, string)
-import Regex exposing (find, regex)
 
 
 -- MAIN
@@ -30,12 +28,24 @@ main =
 
 type alias Model =
     { uri : String
-    , captions : List Caption
+    , caption : Maybe CaptionHistory
     , errorMessage : Maybe String
     }
 
 
+type alias CaptionHistory =
+    { current : Caption
+    , rest : List Caption
+    }
+
+
 type alias Caption =
+    { name : String
+    , captions : List Line
+    }
+
+
+type alias Line =
     { time : Float
     , text : String
     }
@@ -47,7 +57,7 @@ type alias Caption =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "" [] Nothing, Cmd.none )
+    ( Model "" Nothing Nothing, Cmd.none )
 
 
 
@@ -58,6 +68,7 @@ type Msg
     = UpdateUri String
     | FetchCaptions
     | NewCaptions (Result Http.Error (List Caption))
+    | SelectCaption String
     | SkipToTime Float
 
 
@@ -81,10 +92,31 @@ update message model =
             ( { model | errorMessage = Nothing }, fetchCaptions model.uri )
 
         NewCaptions (Ok newCaptions) ->
-            ( { model | captions = formatCaptions newCaptions }, loadVideo (videoId model.uri) )
+            ( addCaptions model newCaptions, loadVideo (videoId model.uri) )
 
         NewCaptions (Err message) ->
             ( { model | errorMessage = Just <| errorMessage message }, Cmd.none )
+
+        SelectCaption name ->
+            let
+                selectCurrent capList =
+                    Just (List.partition (\x -> x.name == name) capList)
+
+                setCurrent capTuple =
+                    case capTuple of
+                        ( [ current ], rest ) ->
+                            Just { current = current, rest = rest }
+
+                        _ ->
+                            Nothing
+
+                newCaptions =
+                    model.caption
+                        |> Maybe.andThen (\c -> Just (c.current :: c.rest))
+                        |> Maybe.andThen selectCurrent
+                        |> Maybe.andThen setCurrent
+            in
+            ( { model | caption = newCaptions }, Cmd.none )
 
         SkipToTime time ->
             ( model, skipToTime time )
@@ -107,6 +139,16 @@ errorMessage message =
 
         _ ->
             "There was an error processing your request"
+
+
+addCaptions : Model -> List Caption -> Model
+addCaptions model captions =
+    case captions of
+        x :: xs ->
+            { model | caption = Just { current = x, rest = xs } }
+
+        _ ->
+            model
 
 
 videoId : String -> String
@@ -159,18 +201,15 @@ decodeCaptionJson =
 captionDecoder : Decoder Caption
 captionDecoder =
     map2 Caption
+        (field "name" string)
+        (field "captions" <| list lineDecoder)
+
+
+lineDecoder : Decoder Line
+lineDecoder =
+    map2 Line
         (field "time" float)
         (field "text" string)
-
-
-formatCaptions : List Caption -> List Caption
-formatCaptions captions =
-    List.map (\cap -> { time = cap.time, text = noHTMLCode cap.text }) captions
-
-
-noHTMLCode : String -> String
-noHTMLCode capText =
-    Regex.replace Regex.All (Regex.regex "&#39;") (\_ -> "'") capText
 
 
 
@@ -192,21 +231,49 @@ view model =
         [ p [] [ viewErrorMessage model.errorMessage ]
         , input [ onInput UpdateUri ] []
         , button [ onClick FetchCaptions ] [ text <| "Submit" ]
-        , div [ class "transcript" ] <| viewCaptions model.captions
+        , viewCaptionPicker model.caption
+        , div [ class "transcript" ] (viewCaption model.caption)
         ]
 
 
-viewCaptions : List Caption -> List (Html Msg)
-viewCaptions captions =
+viewCaptionPicker : Maybe CaptionHistory -> Html Msg
+viewCaptionPicker caption =
+    case caption of
+        Just c ->
+            select [ onInput SelectCaption ] <| currentCaptionOption c.current :: captionOptions c.rest
+
+        Nothing ->
+            div [] []
+
+
+currentCaptionOption : Caption -> Html Msg
+currentCaptionOption caption =
+    option [ selected True, value caption.name ] [ text caption.name ]
+
+
+captionOptions : List Caption -> List (Html Msg)
+captionOptions captions =
     List.map
-        (\caption ->
-            p
-                [ onClick <| SkipToTime caption.time
-                , class "transcript__caption"
-                ]
-                [ text <| viewTime caption.time ++ ": " ++ caption.text ]
-        )
+        (\cap -> option [ selected False, value cap.name ] [ text cap.name ])
         captions
+
+
+viewCaption : Maybe CaptionHistory -> List (Html Msg)
+viewCaption captionHistory =
+    case captionHistory of
+        Just history ->
+            List.map
+                (\caption ->
+                    p
+                        [ onClick <| SkipToTime caption.time
+                        , class "transcript__caption"
+                        ]
+                        [ text <| viewTime caption.time ++ ": " ++ caption.text ]
+                )
+                history.current.captions
+
+        Nothing ->
+            [ p [] [ text "No captions found for this video" ] ]
 
 
 viewTime : Float -> String
