@@ -2,12 +2,14 @@ port module Main exposing (..)
 
 import Combine exposing ((*>), (>>=), end, manyTill, or, parse, regex, while)
 import Combine.Char exposing (anyChar)
+import Fuzzy exposing (addPenalty, match, removePenalty)
 import Html exposing (..)
 import Html.Attributes exposing (attribute, checked, class, selected, src, style, value)
 import Html.Events exposing (onClick, onInput, onWithOptions)
 import Http exposing (get, send)
 import Json.Decode exposing (Decoder, field, float, list, map2, string, succeed)
 import Mouse
+import Regex exposing (contains, regex)
 
 
 -- MAIN
@@ -29,6 +31,7 @@ main =
 
 type alias Model =
     { uri : String
+    , search : String
     , caption : Maybe CaptionHistory
     , errorMessage : Maybe String
     , dropDownStatus : DropDownStatus
@@ -64,7 +67,7 @@ type DropDownStatus
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "" Nothing Nothing Closed, Cmd.none )
+    ( Model "" "apple" Nothing Nothing Closed, Cmd.none )
 
 
 
@@ -174,6 +177,9 @@ addCaptions model captions =
         ( [ x ], xs ) ->
             { model | caption = Just { current = x, rest = xs } }
 
+        ( x :: xs, rest ) ->
+            { model | caption = Just { current = x, rest = xs ++ rest } }
+
         ( [], x :: xs ) ->
             { model | caption = Just { current = x, rest = xs } }
 
@@ -267,7 +273,7 @@ view model =
         , input [ onInput UpdateUri ] []
         , button [ onClick FetchCaptions ] [ text <| "Submit" ]
         , viewCaptionPicker model
-        , div [ class "transcript" ] (viewCaption model.caption)
+        , div [ class "transcript" ] (viewCaption model.caption model.search)
         ]
 
 
@@ -320,22 +326,51 @@ onClick message =
         (succeed message)
 
 
-viewCaption : Maybe CaptionHistory -> List (Html Msg)
-viewCaption captionHistory =
+viewCaption : Maybe CaptionHistory -> String -> List (Html Msg)
+viewCaption captionHistory search =
     case captionHistory of
         Just history ->
-            List.map
-                (\caption ->
-                    p
-                        [ onClick <| SkipToTime caption.time
-                        , class "transcript__caption"
-                        ]
-                        [ text <| viewTime caption.time ++ ": " ++ caption.text ]
-                )
-                history.current.captions
+            filterBySearch history search
+                |> viewCaptions
 
         Nothing ->
             [ p [] [ text "No captions found for this video" ] ]
+
+
+filterBySearch : CaptionHistory -> String -> List Line
+filterBySearch history search =
+    let
+        isLetter char =
+            contains (Regex.regex "\\w") <| toString char
+
+        words line =
+            line
+                |> String.toLower
+                |> String.filter isLetter
+                |> String.split " "
+
+        wordScore word =
+            match [ addPenalty 1, removePenalty 1 ] [] search word |> .score
+
+        totalWordScore line =
+            words line
+                |> List.map wordScore
+                |> List.foldl (+) 0
+    in
+    List.filter (\c -> totalWordScore c.text >= 2000) history.current.captions
+
+
+viewCaptions : List Line -> List (Html Msg)
+viewCaptions lines =
+    List.map
+        (\caption ->
+            p
+                [ onClick <| SkipToTime caption.time
+                , class "transcript__caption"
+                ]
+                [ text <| viewTime caption.time ++ ": " ++ caption.text ]
+        )
+        lines
 
 
 viewTime : Float -> String
