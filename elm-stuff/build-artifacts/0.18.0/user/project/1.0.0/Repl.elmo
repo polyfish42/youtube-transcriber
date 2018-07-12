@@ -1,0 +1,11 @@
+var _user$project$Repl$t_s_o_l = {ctor: '_Tuple0'};
+var _user$project$Repl$d_e_l_t_r_o_n_3_0_3_0 = A4(
+	_tripokey$elm_fuzzy$Fuzzy$match,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: ' ',
+		_1: {ctor: '[]'}
+	},
+	'Jony',
+	'Hello Jony Ive: We\'re a small design team');
