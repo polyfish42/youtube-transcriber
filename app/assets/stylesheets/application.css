@@ -14,20 +14,28 @@
  *= require_self
  */
 
-p {
-    display: inline-block;
-    margin-left: 4px;
+body {
+    background: black;
 }
 
-.transcript {
-    width: 640px;
-    float: right;
+#main {}
+
+p {
+    color: white;
 }
+
+.search-bar {
+    display: flex;
+}
+
+.input-only {
+    margin: 0 auto;
+}
+
+.transcript {}
 
 .transcript__caption {
     cursor: pointer;
 }
 
-#player {
-    float: left;
-}
+#player {}

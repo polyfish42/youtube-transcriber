@@ -4,12 +4,11 @@ import Combine exposing ((*>), (>>=), end, manyTill, or, parse, regex, while)
 import Combine.Char exposing (anyChar)
 import Fuzzy exposing (addPenalty, match, removePenalty)
 import Html exposing (..)
-import Html.Attributes exposing (attribute, checked, class, selected, src, style, value)
-import Html.Events exposing (onClick, onInput, onWithOptions)
+import Html.Attributes exposing (attribute, checked, class, classList, selected, src, style, value)
+import Html.Events exposing (onClick, onInput, onSubmit, onWithOptions)
 import Http exposing (get, send)
 import Json.Decode exposing (Decoder, field, float, list, map2, string, succeed)
 import Mouse
-import Regex exposing (contains, regex)
 
 
 -- MAIN
@@ -273,13 +272,32 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ p [] [ viewErrorMessage model.errorMessage ]
-        , input [ onInput UpdateUri ] []
-        , button [ onClick FetchCaptions ] [ text <| "Submit" ]
-        , viewCaptionPicker model
-        , viewSearchCaptions model.caption
+        [ div [ classList [ ( "search-bar", True ) ] ]
+            [ p [] [ viewErrorMessage model.errorMessage ]
+            , form [ onSubmit FetchCaptions ]
+                [ input
+                    [ onInput UpdateUri
+                    , classList [ ( "input-only", not <| captionDoesExist model.caption ) ]
+                    ]
+                    []
+                ]
+
+            -- , button [ onClick FetchCaptions ] [ text <| "Submit" ]
+            , viewCaptionPicker model
+            , viewSearchCaptions model.caption
+            ]
         , div [ class "transcript" ] (viewCaption model.caption model.search)
         ]
+
+
+captionDoesExist : Maybe CaptionHistory -> Bool
+captionDoesExist history =
+    case history of
+        Just _ ->
+            True
+
+        Nothing ->
+            False
 
 
 viewCaptionPicker : Model -> Html Msg
