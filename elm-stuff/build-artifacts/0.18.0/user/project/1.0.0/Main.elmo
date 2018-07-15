@@ -164,8 +164,6 @@ var _user$project$Main$errorMessage = function (message) {
 			return _p4._0;
 		case 'NetworkError':
 			return 'We weren\'t able to fetch the captions for this video. Please check your internet connection.';
-		case 'BadStatus':
-			return _p4._0.body;
 		default:
 			return 'There was an error processing your request';
 	}

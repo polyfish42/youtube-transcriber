@@ -1,0 +1,61 @@
+var _andrewMacmurray$elm_delay$Delay$withUnit = F2(
+	function (unit, msgs) {
+		return A2(
+			_elm_lang$core$List$map,
+			function (_p0) {
+				var _p1 = _p0;
+				return {ctor: '_Tuple3', _0: _p1._0, _1: unit, _2: _p1._1};
+			},
+			msgs);
+	});
+var _andrewMacmurray$elm_delay$Delay$addOffset = F3(
+	function (previousTotal, time, unit) {
+		var total = previousTotal + (time * unit);
+		return (_elm_lang$core$Native_Utils.cmp(total, previousTotal + 6) < 1) ? (total + 6) : total;
+	});
+var _andrewMacmurray$elm_delay$Delay$after_ = F2(
+	function (time, msg) {
+		return A2(
+			_elm_lang$core$Task$perform,
+			_elm_lang$core$Basics$always(msg),
+			_elm_lang$core$Process$sleep(time));
+	});
+var _andrewMacmurray$elm_delay$Delay$collectDelays = F2(
+	function (_p3, _p2) {
+		var _p4 = _p3;
+		var _p5 = _p2;
+		var newTotal = A3(_andrewMacmurray$elm_delay$Delay$addOffset, _p5._0, _p4._0, _p4._1);
+		return {
+			ctor: '_Tuple2',
+			_0: newTotal,
+			_1: A2(
+				_elm_lang$core$Basics_ops['++'],
+				_p5._1,
+				{
+					ctor: '::',
+					_0: A2(_andrewMacmurray$elm_delay$Delay$after_, newTotal, _p4._2),
+					_1: {ctor: '[]'}
+				})
+		};
+	});
+var _andrewMacmurray$elm_delay$Delay$sequence = function (msgs) {
+	return _elm_lang$core$Platform_Cmd$batch(
+		_elm_lang$core$Tuple$second(
+			A3(
+				_elm_lang$core$List$foldl,
+				_andrewMacmurray$elm_delay$Delay$collectDelays,
+				{
+					ctor: '_Tuple2',
+					_0: 0,
+					_1: {ctor: '[]'}
+				},
+				msgs)));
+};
+var _andrewMacmurray$elm_delay$Delay$sequenceIf = F2(
+	function (predicate, msgs) {
+		return predicate ? _andrewMacmurray$elm_delay$Delay$sequence(msgs) : _elm_lang$core$Platform_Cmd$none;
+	});
+var _andrewMacmurray$elm_delay$Delay$after = F3(
+	function (time, unit, msg) {
+		return A2(_andrewMacmurray$elm_delay$Delay$after_, time * unit, msg);
+	});

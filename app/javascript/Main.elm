@@ -168,9 +168,6 @@ errorMessage message =
         Http.NetworkError ->
             "We weren't able to fetch the captions for this video. Please check your internet connection."
 
-        Http.BadStatus res ->
-            res.body
-
         _ ->
             "There was an error processing your request"
 
