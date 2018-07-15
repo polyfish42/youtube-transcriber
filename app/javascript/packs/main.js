@@ -28,8 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const loadVideo = function (videoId) {
     if (player === undefined) {
       player = new YT.Player('player', {
-        height: '380px',
-        width: '640px',
         videoId: videoId,
         events: {
           'onReady': window.onPlayerReady,

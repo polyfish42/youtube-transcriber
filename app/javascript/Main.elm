@@ -2,13 +2,15 @@ port module Main exposing (..)
 
 import Combine exposing ((*>), (>>=), end, manyTill, or, parse, regex, while)
 import Combine.Char exposing (anyChar)
+import Dom exposing (blur)
 import Fuzzy exposing (addPenalty, match, removePenalty)
 import Html exposing (..)
-import Html.Attributes exposing (attribute, checked, class, classList, selected, src, style, value)
+import Html.Attributes exposing (attribute, checked, class, classList, id, placeholder, selected, src, style, value)
 import Html.Events exposing (onClick, onInput, onSubmit, onWithOptions)
 import Http exposing (get, send)
 import Json.Decode exposing (Decoder, field, float, list, map2, string, succeed)
 import Mouse
+import Task
 
 
 -- MAIN
@@ -82,6 +84,7 @@ type Msg
     | CaptionPicked Caption
     | UpdateSearch String
     | SkipToTime Float
+    | BlurResult (Result Dom.Error ())
 
 
 
@@ -101,7 +104,7 @@ update message model =
             ( { model | uri = uri }, Cmd.none )
 
         FetchCaptions ->
-            ( { model | errorMessage = Nothing }, fetchCaptions model.uri )
+            { model | errorMessage = Nothing } ! [ fetchCaptions model.uri, blur "uri-input" |> Task.attempt BlurResult ]
 
         NewCaptions (Ok newCaptions) ->
             ( addCaptions model newCaptions, loadVideo (videoId model.uri) )
@@ -148,6 +151,9 @@ update message model =
 
         SkipToTime time ->
             ( model, skipToTime time )
+
+        BlurResult _ ->
+            ( model, Cmd.none )
 
 
 errorMessage : Http.Error -> String
@@ -271,21 +277,22 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div [ classList [ ( "search-bar", True ) ] ]
-            [ p [] [ viewErrorMessage model.errorMessage ]
-            , form [ onSubmit FetchCaptions ]
+    div [ class "main" ]
+        [ div [ classList [ ( "header", True ) ] ]
+            [ h1 [] [ text "YouTube Transcriber" ]
+            , form
+                [ onSubmit FetchCaptions ]
                 [ input
                     [ onInput UpdateUri
-                    , classList [ ( "input-only", not <| captionDoesExist model.caption ) ]
+                    , placeholder "Enter YouTube URL"
+                    , id "uri-input"
                     ]
                     []
                 ]
-
-            -- , button [ onClick FetchCaptions ] [ text <| "Submit" ]
-            , viewCaptionPicker model
-            , viewSearchCaptions model.caption
+            , h2 [ class "bio" ] [ text <| "Made by Jake Brady" ]
             ]
+        , div [ id "player" ] []
+        , viewSearchBar model
         , div [ class "transcript" ] (viewCaption model.caption model.search)
         ]
 
@@ -300,31 +307,39 @@ captionDoesExist history =
             False
 
 
-viewCaptionPicker : Model -> Html Msg
-viewCaptionPicker model =
+viewSearchBar : Model -> Html Msg
+viewSearchBar model =
     case model.caption of
-        Just cap ->
-            let
-                displayStyle =
-                    if model.dropDownStatus == Open then
-                        [ ( "display", "block" ) ]
-                    else
-                        [ ( "display", "none" ) ]
-            in
-            div
-                [ onClick ToggleDropDown ]
-                [ p
-                    []
-                    [ span [] [ text cap.current.name ]
-                    , span [] [ text "▾" ]
-                    ]
-                , ul
-                    [ style displayStyle ]
-                    (List.map viewCaptionOptions <| allCaptions cap)
+        Just caption ->
+            div [ classList [ ( "search-bar", True ) ] ]
+                [ viewCaptionPicker caption model.dropDownStatus
+                , viewSearchCaptions
                 ]
 
         Nothing ->
             div [] []
+
+
+viewCaptionPicker : CaptionHistory -> DropDownStatus -> Html Msg
+viewCaptionPicker caption dropDownStatus =
+    let
+        displayStyle =
+            if dropDownStatus == Open then
+                [ ( "display", "block" ) ]
+            else
+                [ ( "display", "none" ) ]
+    in
+    div
+        [ onClick ToggleDropDown, class "caption-dropdown" ]
+        [ p
+            []
+            [ span [] [ text caption.current.name ]
+            , span [] [ text "▾" ]
+            ]
+        , ul
+            [ style displayStyle, class "caption-dropdown-list" ]
+            (List.map viewCaptionOptions <| allCaptions caption)
+        ]
 
 
 allCaptions : CaptionHistory -> List Caption
@@ -349,14 +364,11 @@ onClick message =
         (succeed message)
 
 
-viewSearchCaptions : Maybe CaptionHistory -> Html Msg
-viewSearchCaptions history =
-    case history of
-        Just h ->
-            input [ onInput UpdateSearch ] []
-
-        Nothing ->
-            div [] []
+viewSearchCaptions : Html Msg
+viewSearchCaptions =
+    div []
+        [ input [ onInput UpdateSearch, placeholder "Search" ] []
+        ]
 
 
 viewCaption : Maybe CaptionHistory -> String -> List (Html Msg)
@@ -366,7 +378,7 @@ viewCaption captionHistory search =
             viewCaptions history search
 
         Nothing ->
-            [ p [] [ text "No captions found for this video" ] ]
+            [ div [] [] ]
 
 
 viewCaptions : CaptionHistory -> String -> List (Html Msg)
@@ -400,11 +412,13 @@ viewCaptions history search =
 
 viewOneCaption : Line -> Html Msg
 viewOneCaption line =
-    p
+    div
         [ onClick <| SkipToTime line.time
         , class "transcript__caption"
         ]
-        [ text <| viewTime line.time ++ ": " ++ line.text ]
+        [ span [ class "time" ] [ text <| viewTime line.time ++ ": " ]
+        , text <| line.text
+        ]
 
 
 viewSearchedCaption : ( Fuzzy.Result, Line ) -> Html Msg
@@ -451,7 +465,7 @@ viewSearchedCaption ( result, line ) =
             ( sum ++ [ span [ hStyle index ] [ c |> String.fromChar |> text ] ], index + 1 )
 
         highlight =
-            String.foldl accumulateChar ( [ span [] [ viewTime line.time ++ ": " |> text ] ], 0 ) line.text
+            String.foldl accumulateChar ( [ span [ class "time" ] [ viewTime line.time ++ ": " |> text ] ], 0 ) line.text
     in
     p
         [ onClick <| SkipToTime line.time

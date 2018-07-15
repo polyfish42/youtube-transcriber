@@ -206,12 +206,15 @@ var _user$project$Main$init = {
 	_1: _elm_lang$core$Platform_Cmd$none
 };
 var _user$project$Main$Open = {ctor: 'Open'};
+var _user$project$Main$BlurResult = function (a) {
+	return {ctor: 'BlurResult', _0: a};
+};
 var _user$project$Main$SkipToTime = function (a) {
 	return {ctor: 'SkipToTime', _0: a};
 };
 var _user$project$Main$viewOneCaption = function (line) {
 	return A2(
-		_elm_lang$html$Html$p,
+		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
 			_0: _user$project$Main$onClick(
@@ -224,12 +227,27 @@ var _user$project$Main$viewOneCaption = function (line) {
 		},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text(
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					_user$project$Main$viewTime(line.time),
-					A2(_elm_lang$core$Basics_ops['++'], ': ', line.text))),
-			_1: {ctor: '[]'}
+			_0: A2(
+				_elm_lang$html$Html$span,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('time'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_user$project$Main$viewTime(line.time),
+							': ')),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(line.text),
+				_1: {ctor: '[]'}
+			}
 		});
 };
 var _user$project$Main$viewSearchedCaption = function (_p5) {
@@ -315,7 +333,11 @@ var _user$project$Main$viewSearchedCaption = function (_p5) {
 				ctor: '::',
 				_0: A2(
 					_elm_lang$html$Html$span,
-					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('time'),
+						_1: {ctor: '[]'}
+					},
 					{
 						ctor: '::',
 						_0: _elm_lang$html$Html$text(
@@ -388,13 +410,9 @@ var _user$project$Main$viewCaption = F2(
 			return {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$p,
+					_elm_lang$html$Html$div,
 					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('No captions found for this video'),
-						_1: {ctor: '[]'}
-					}),
+					{ctor: '[]'}),
 				_1: {ctor: '[]'}
 			};
 		}
@@ -402,24 +420,25 @@ var _user$project$Main$viewCaption = F2(
 var _user$project$Main$UpdateSearch = function (a) {
 	return {ctor: 'UpdateSearch', _0: a};
 };
-var _user$project$Main$viewSearchCaptions = function (history) {
-	var _p13 = history;
-	if (_p13.ctor === 'Just') {
-		return A2(
+var _user$project$Main$viewSearchCaptions = A2(
+	_elm_lang$html$Html$div,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: A2(
 			_elm_lang$html$Html$input,
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateSearch),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$placeholder('Search'),
+					_1: {ctor: '[]'}
+				}
 			},
-			{ctor: '[]'});
-	} else {
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{ctor: '[]'});
-	}
-};
+			{ctor: '[]'}),
+		_1: {ctor: '[]'}
+	});
 var _user$project$Main$CaptionPicked = function (a) {
 	return {ctor: 'CaptionPicked', _0: a};
 };
@@ -440,8 +459,8 @@ var _user$project$Main$viewCaptionOptions = function (caption) {
 };
 var _user$project$Main$BlurDropDown = {ctor: 'BlurDropDown'};
 var _user$project$Main$subscriptions = function (model) {
-	var _p14 = model.dropDownStatus;
-	if (_p14.ctor === 'Closed') {
+	var _p13 = model.dropDownStatus;
+	if (_p13.ctor === 'Closed') {
 		return _elm_lang$core$Platform_Sub$none;
 	} else {
 		return _elm_lang$mouse$Mouse$clicks(
@@ -449,11 +468,9 @@ var _user$project$Main$subscriptions = function (model) {
 	}
 };
 var _user$project$Main$ToggleDropDown = {ctor: 'ToggleDropDown'};
-var _user$project$Main$viewCaptionPicker = function (model) {
-	var _p15 = model.caption;
-	if (_p15.ctor === 'Just') {
-		var _p16 = _p15._0;
-		var displayStyle = _elm_lang$core$Native_Utils.eq(model.dropDownStatus, _user$project$Main$Open) ? {
+var _user$project$Main$viewCaptionPicker = F2(
+	function (caption, dropDownStatus) {
+		var displayStyle = _elm_lang$core$Native_Utils.eq(dropDownStatus, _user$project$Main$Open) ? {
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 'display', _1: 'block'},
 			_1: {ctor: '[]'}
@@ -467,7 +484,11 @@ var _user$project$Main$viewCaptionPicker = function (model) {
 			{
 				ctor: '::',
 				_0: _user$project$Main$onClick(_user$project$Main$ToggleDropDown),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('caption-dropdown'),
+					_1: {ctor: '[]'}
+				}
 			},
 			{
 				ctor: '::',
@@ -481,7 +502,7 @@ var _user$project$Main$viewCaptionPicker = function (model) {
 							{ctor: '[]'},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text(_p16.current.name),
+								_0: _elm_lang$html$Html$text(caption.current.name),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
@@ -504,12 +525,41 @@ var _user$project$Main$viewCaptionPicker = function (model) {
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html_Attributes$style(displayStyle),
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('caption-dropdown-list'),
+								_1: {ctor: '[]'}
+							}
 						},
 						A2(
 							_elm_lang$core$List$map,
 							_user$project$Main$viewCaptionOptions,
-							_user$project$Main$allCaptions(_p16))),
+							_user$project$Main$allCaptions(caption))),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
+var _user$project$Main$viewSearchBar = function (model) {
+	var _p14 = model.caption;
+	if (_p14.ctor === 'Just') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$classList(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'search-bar', _1: true},
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(_user$project$Main$viewCaptionPicker, _p14._0, model.dropDownStatus),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Main$viewSearchCaptions,
 					_1: {ctor: '[]'}
 				}
 			});
@@ -530,29 +580,39 @@ var _user$project$Main$fetchCaptions = function (uri) {
 };
 var _user$project$Main$update = F2(
 	function (message, model) {
-		var _p17 = message;
-		switch (_p17.ctor) {
+		var _p15 = message;
+		switch (_p15.ctor) {
 			case 'UpdateUri':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{uri: _p17._0}),
+						{uri: _p15._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'FetchCaptions':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
+				return A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					_elm_lang$core$Native_Utils.update(
 						model,
 						{errorMessage: _elm_lang$core$Maybe$Nothing}),
-					_1: _user$project$Main$fetchCaptions(model.uri)
-				};
+					{
+						ctor: '::',
+						_0: _user$project$Main$fetchCaptions(model.uri),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$core$Task$attempt,
+								_user$project$Main$BlurResult,
+								_elm_lang$dom$Dom$blur('uri-input')),
+							_1: {ctor: '[]'}
+						}
+					});
 			case 'NewCaptions':
-				if (_p17._0.ctor === 'Ok') {
+				if (_p15._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
-						_0: A2(_user$project$Main$addCaptions, model, _p17._0._0),
+						_0: A2(_user$project$Main$addCaptions, model, _p15._0._0),
 						_1: _user$project$Main$loadVideo(
 							_user$project$Main$videoId(model.uri))
 					};
@@ -563,7 +623,7 @@ var _user$project$Main$update = F2(
 							model,
 							{
 								errorMessage: _elm_lang$core$Maybe$Just(
-									_user$project$Main$errorMessage(_p17._0._0))
+									_user$project$Main$errorMessage(_p15._0._0))
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -587,10 +647,10 @@ var _user$project$Main$update = F2(
 				};
 			case 'CaptionPicked':
 				var setCurrent = function (capTuple) {
-					var _p18 = capTuple;
-					if (((_p18.ctor === '_Tuple2') && (_p18._0.ctor === '::')) && (_p18._0._1.ctor === '[]')) {
+					var _p16 = capTuple;
+					if (((_p16.ctor === '_Tuple2') && (_p16._0.ctor === '::')) && (_p16._0._1.ctor === '[]')) {
 						return _elm_lang$core$Maybe$Just(
-							{current: _p18._0._0, rest: _p18._1});
+							{current: _p16._0._0, rest: _p16._1});
 					} else {
 						return _elm_lang$core$Maybe$Nothing;
 					}
@@ -600,7 +660,7 @@ var _user$project$Main$update = F2(
 						A2(
 							_elm_lang$core$List$partition,
 							function (x) {
-								return _elm_lang$core$Native_Utils.eq(x.name, _p17._0.name);
+								return _elm_lang$core$Native_Utils.eq(x.name, _p15._0.name);
 							},
 							capList));
 				};
@@ -630,16 +690,18 @@ var _user$project$Main$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							search: _elm_lang$core$String$toLower(_p17._0)
+							search: _elm_lang$core$String$toLower(_p15._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'SkipToTime':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Main$skipToTime(_p17._0)
+					_1: _user$project$Main$skipToTime(_p15._0)
 				};
+			default:
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 		}
 	});
 var _user$project$Main$FetchCaptions = {ctor: 'FetchCaptions'};
@@ -649,7 +711,11 @@ var _user$project$Main$UpdateUri = function (a) {
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
-		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('main'),
+			_1: {ctor: '[]'}
+		},
 		{
 			ctor: '::',
 			_0: A2(
@@ -659,7 +725,7 @@ var _user$project$Main$view = function (model) {
 					_0: _elm_lang$html$Html_Attributes$classList(
 						{
 							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'search-bar', _1: true},
+							_0: {ctor: '_Tuple2', _0: 'header', _1: true},
 							_1: {ctor: '[]'}
 						}),
 					_1: {ctor: '[]'}
@@ -667,11 +733,11 @@ var _user$project$Main$view = function (model) {
 				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$p,
+						_elm_lang$html$Html$h1,
 						{ctor: '[]'},
 						{
 							ctor: '::',
-							_0: _user$project$Main$viewErrorMessage(model.errorMessage),
+							_0: _elm_lang$html$Html$text('YouTube Transcriber'),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
@@ -692,17 +758,12 @@ var _user$project$Main$view = function (model) {
 										_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$UpdateUri),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$classList(
-												{
-													ctor: '::',
-													_0: {
-														ctor: '_Tuple2',
-														_0: 'input-only',
-														_1: !_user$project$Main$captionDoesExist(model.caption)
-													},
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
+											_0: _elm_lang$html$Html_Attributes$placeholder('Enter YouTube URL'),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$id('uri-input'),
+												_1: {ctor: '[]'}
+											}
 										}
 									},
 									{ctor: '[]'}),
@@ -710,12 +771,19 @@ var _user$project$Main$view = function (model) {
 							}),
 						_1: {
 							ctor: '::',
-							_0: _user$project$Main$viewCaptionPicker(model),
-							_1: {
-								ctor: '::',
-								_0: _user$project$Main$viewSearchCaptions(model.caption),
-								_1: {ctor: '[]'}
-							}
+							_0: A2(
+								_elm_lang$html$Html$h2,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('bio'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text('Made by Jake Brady'),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
 						}
 					}
 				}),
@@ -725,11 +793,26 @@ var _user$project$Main$view = function (model) {
 					_elm_lang$html$Html$div,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('transcript'),
+						_0: _elm_lang$html$Html_Attributes$id('player'),
 						_1: {ctor: '[]'}
 					},
-					A2(_user$project$Main$viewCaption, model.caption, model.search)),
-				_1: {ctor: '[]'}
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: _user$project$Main$viewSearchBar(model),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('transcript'),
+								_1: {ctor: '[]'}
+							},
+							A2(_user$project$Main$viewCaption, model.caption, model.search)),
+						_1: {ctor: '[]'}
+					}
+				}
 			}
 		});
 };
