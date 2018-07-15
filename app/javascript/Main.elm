@@ -5,7 +5,7 @@ import Combine.Char exposing (anyChar)
 import Dom exposing (blur)
 import Fuzzy exposing (addPenalty, match, removePenalty)
 import Html exposing (..)
-import Html.Attributes exposing (attribute, checked, class, classList, id, placeholder, selected, src, style, value)
+import Html.Attributes exposing (attribute, checked, class, classList, href, id, placeholder, selected, src, style, value)
 import Html.Events exposing (onClick, onInput, onSubmit, onWithOptions)
 import Http exposing (get, send)
 import Json.Decode exposing (Decoder, field, float, list, map2, string, succeed)
@@ -289,7 +289,10 @@ view model =
                     ]
                     []
                 ]
-            , h2 [ class "bio" ] [ text <| "Made by Jake Brady" ]
+            , h1 [ class "bio" ]
+                [ text "Made by "
+                , a [ href "https://www.jakebrady.me/" ] [ text "Jake Brady" ]
+                ]
             ]
         , div [ id "player" ] []
         , viewSearchBar model
