@@ -22,7 +22,7 @@ body {
     color: hsl(0, 0%, 6.7%);
 }
 
-.main {
+.content {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 60px auto auto auto;
@@ -32,10 +32,9 @@ body {
 
 .header {
     width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-    justify-content: space-evenly;
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-rows: 60px 0px;
     align-items: center;
     background-color: white;
     box-shadow: 0 1px 5px #e4e4e4;
@@ -62,7 +61,6 @@ body {
     }
     .header {
         grid-column: 1/3;
-        flex-direction: row;
     }
     #player {
         grid-row: 2/4;
@@ -94,13 +92,19 @@ a:visited {
     color: blue;
 }
 
+h1 {
+    justify-self: center;
+}
+
 form {
-    flex: 1;
-    max-width: 500px;
+    grid-column: 2/3;
+    width: 100%;
+    justify-self: center;
 }
 
 .bio {
     color: rgb(133, 133, 133);
+    justify-self: center;
 }
 
 input {
@@ -180,4 +184,13 @@ input::placeholder {
 
 .transcript__caption:hover {
     color: blue;
+}
+
+.error-message {
+    grid-column: 2/2;
+    justify-self: start;
+    color: red;
+    font-size: 12px;
+    position: relative;
+    bottom: 8px;
 }

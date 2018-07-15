@@ -277,7 +277,7 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div [ class "main" ]
+    div [ class "content" ]
         [ div [ classList [ ( "header", True ) ] ]
             [ h1 [] [ text "YouTube Transcriber" ]
             , form
@@ -293,6 +293,7 @@ view model =
                 [ text "Made by "
                 , a [ href "https://www.jakebrady.me/" ] [ text "Jake Brady" ]
                 ]
+            , viewErrorMessage model.errorMessage
             ]
         , div [ id "player" ] []
         , viewSearchBar model
@@ -510,7 +511,7 @@ viewErrorMessage : Maybe String -> Html Msg
 viewErrorMessage message =
     case message of
         Just message ->
-            text message
+            p [ class "error-message" ] [ text message ]
 
         Nothing ->
             text ""
