@@ -55,7 +55,7 @@ body {
 }
 
 @media only screen and (min-width: 1000px) {
-    .main {
+    .content {
         grid-template-rows: 60px 25px auto;
         grid-template-columns: 4fr 3fr;
     }
