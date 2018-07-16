@@ -613,7 +613,10 @@ var _user$project$Main$NewCaptions = function (a) {
 	return {ctor: 'NewCaptions', _0: a};
 };
 var _user$project$Main$fetchCaptions = function (uri) {
-	var url = A2(_elm_lang$core$Basics_ops['++'], 'https://youtube-transcription.herokuapp.com/api/transcript?uri=', uri);
+	var url = A2(
+		_elm_lang$core$Basics_ops['++'],
+		'http://localhost:3000/api/transcript?uri=https://www.youtube.com/watch?v=',
+		_user$project$Main$videoId(uri));
 	var request = A2(_elm_lang$http$Http$get, url, _user$project$Main$decodeCaptionJson);
 	return A2(_elm_lang$http$Http$send, _user$project$Main$NewCaptions, request);
 };
