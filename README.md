@@ -1,24 +1,7 @@
-# README
+# YouTube Transcriber
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Live Site: [https://youtube-transcription.herokuapp.com/](https://youtube-transcription.herokuapp.com/)
 
-Things you may want to cover:
+YouTube Transcriber was built to make watching long talks more efficient. It will create a transcript from the captions that are searchable and can be clicked to skip to their time stamp. It's really useful for finding that one part of the talk you liked.
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+It works by scraping the captions off the actual YouTube page, and building a transcription from the different available captions.
