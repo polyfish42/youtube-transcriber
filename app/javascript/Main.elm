@@ -1,6 +1,6 @@
 port module Main exposing (..)
 
-import Combine exposing ((*>), (>>=), end, manyTill, or, parse, regex, while)
+import Combine exposing ((*>), (>>=), choice, end, manyTill, parse, regex, while)
 import Combine.Char exposing (anyChar)
 import Dom exposing (blur)
 import Fuzzy exposing (addPenalty, match, removePenalty)
@@ -227,10 +227,16 @@ youTubeURIParser =
         chooseParser str =
             if str == "https://www.youtube.com/watch?" then
                 normalURI
+            else if str == "https://m.youtube.com/watch?" then
+                normalURI
             else
                 shareURI
     in
-    or (Combine.string "https://www.youtube.com/watch?") (Combine.string "https://youtu.be/")
+    choice
+        [ Combine.string "https://www.youtube.com/watch?"
+        , Combine.string "https://m.youtube.com/watch?"
+        , Combine.string "https://youtu.be/"
+        ]
         >>= chooseParser
 
 

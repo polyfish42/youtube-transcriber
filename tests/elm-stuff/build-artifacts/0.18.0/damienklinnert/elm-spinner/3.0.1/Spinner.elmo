@@ -1,0 +1,273 @@
+var _damienklinnert$elm_spinner$Spinner$outerStyle = function (cfg) {
+	return _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'position', _1: 'absolute'},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'top',
+					_1: A2(
+						_elm_lang$core$Basics_ops['++'],
+						'calc(',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(cfg.translateY),
+							'%)'))
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'left',
+						_1: A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(cfg.translateX),
+							'%')
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'transform',
+							_1: A2(
+								_elm_lang$core$Basics_ops['++'],
+								'scale(',
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									_elm_lang$core$Basics$toString(cfg.scale),
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										')',
+										cfg.hwaccel ? ' translate3d(0px, 0px, 0px)' : '')))
+						},
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
+};
+var _damienklinnert$elm_spinner$Spinner$Config = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return function (l) {
+												return function (m) {
+													return function (n) {
+														return function (o) {
+															return function (p) {
+																return {lines: a, length: b, width: c, radius: d, scale: e, corners: f, opacity: g, rotate: h, direction: i, speed: j, trail: k, translateX: l, translateY: m, shadow: n, hwaccel: o, color: p};
+															};
+														};
+													};
+												};
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _damienklinnert$elm_spinner$Spinner$Model = function (a) {
+	return {ctor: 'Model', _0: a};
+};
+var _damienklinnert$elm_spinner$Spinner$init = _damienklinnert$elm_spinner$Spinner$Model(0);
+var _damienklinnert$elm_spinner$Spinner$update = F2(
+	function (msg, _p0) {
+		var _p1 = _p0;
+		var _p2 = msg;
+		if (_p2.ctor === 'Noop') {
+			return _damienklinnert$elm_spinner$Spinner$Model(_p1._0);
+		} else {
+			return _damienklinnert$elm_spinner$Spinner$Model(_p2._0);
+		}
+	});
+var _damienklinnert$elm_spinner$Spinner$AnimationFrame = function (a) {
+	return {ctor: 'AnimationFrame', _0: a};
+};
+var _damienklinnert$elm_spinner$Spinner$subscription = _elm_lang$animation_frame$AnimationFrame$times(_damienklinnert$elm_spinner$Spinner$AnimationFrame);
+var _damienklinnert$elm_spinner$Spinner$Noop = {ctor: 'Noop'};
+var _damienklinnert$elm_spinner$Spinner$Counterclockwise = {ctor: 'Counterclockwise'};
+var _damienklinnert$elm_spinner$Spinner$Clockwise = {ctor: 'Clockwise'};
+var _damienklinnert$elm_spinner$Spinner$defaultConfig = {
+	lines: 13,
+	length: 28,
+	width: 14,
+	radius: 42,
+	scale: 1,
+	corners: 1,
+	opacity: 0.25,
+	rotate: 0,
+	direction: _damienklinnert$elm_spinner$Spinner$Clockwise,
+	speed: 1,
+	trail: 60,
+	translateX: 50,
+	translateY: 50,
+	shadow: true,
+	hwaccel: false,
+	color: _elm_lang$core$Basics$always(_elm_lang$core$Color$white)
+};
+var _damienklinnert$elm_spinner$Spinner$barStyles = F3(
+	function (cfg, time, n) {
+		var borderRadius = (cfg.corners * cfg.width) / 2;
+		var scaledTrail = _elm_lang$core$Basics$toFloat(
+			_elm_lang$core$Basics$ceiling((cfg.lines * cfg.trail) / 100));
+		var fullBlinkTime = 1000 / cfg.speed;
+		var movePerLight = _elm_lang$core$Basics$truncate((n / cfg.lines) * fullBlinkTime);
+		var lineOpacity = _elm_lang$core$Basics$toFloat(
+			1000 - A2(
+				_elm_lang$core$Basics_ops['%'],
+				_elm_lang$core$Basics$truncate(time) + movePerLight,
+				_elm_lang$core$Basics$truncate(fullBlinkTime))) / 1000;
+		var trailedOpacity = A2(_elm_lang$core$Basics$max, 0, (cfg.lines * lineOpacity) - (cfg.lines - scaledTrail)) / scaledTrail;
+		var baseLinedOpacity = _elm_lang$core$Basics$toString(
+			A2(_elm_lang$core$Basics$max, cfg.opacity, trailedOpacity));
+		var directionBasedDeg = _elm_lang$core$Native_Utils.eq(cfg.direction, _damienklinnert$elm_spinner$Spinner$Clockwise) ? (cfg.lines - n) : n;
+		var deg = _elm_lang$core$Basics$toString(((360 / cfg.lines) * directionBasedDeg) + cfg.rotate);
+		return _elm_lang$html$Html_Attributes$style(
+			{
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'background',
+					_1: _eskimoblood$elm_color_extra$Color_Convert$colorToCssRgba(
+						cfg.color(n))
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'height',
+						_1: A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(cfg.width),
+							'px')
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'width',
+							_1: A2(
+								_elm_lang$core$Basics_ops['++'],
+								'',
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									_elm_lang$core$Basics$toString(cfg.length + cfg.width),
+									'px'))
+						},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'position', _1: 'absolute'},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'transform-origin', _1: 'left'},
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'transform',
+										_1: A2(
+											_elm_lang$core$Basics_ops['++'],
+											'rotate(',
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												deg,
+												A2(
+													_elm_lang$core$Basics_ops['++'],
+													'deg) translate(',
+													A2(
+														_elm_lang$core$Basics_ops['++'],
+														_elm_lang$core$Basics$toString(cfg.radius),
+														'px, 0px)'))))
+									},
+									_1: {
+										ctor: '::',
+										_0: {
+											ctor: '_Tuple2',
+											_0: 'border-radius',
+											_1: A2(
+												_elm_lang$core$Basics_ops['++'],
+												_elm_lang$core$Basics$toString(borderRadius),
+												'px')
+										},
+										_1: {
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'opacity', _1: baseLinedOpacity},
+											_1: {
+												ctor: '::',
+												_0: {
+													ctor: '_Tuple2',
+													_0: 'box-shadow',
+													_1: cfg.shadow ? '0 0 4px #000' : 'none'
+												},
+												_1: {
+													ctor: '::',
+													_0: {
+														ctor: '_Tuple2',
+														_0: '-webkit-box-shadow',
+														_1: cfg.shadow ? '0 0 4px #000' : 'none'
+													},
+													_1: {ctor: '[]'}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			});
+	});
+var _damienklinnert$elm_spinner$Spinner$view = F2(
+	function (cfg, _p3) {
+		var _p4 = _p3;
+		var range = A2(
+			_elm_lang$core$List$map,
+			_elm_lang$core$Basics$toFloat,
+			A2(
+				_elm_lang$core$List$range,
+				0,
+				_elm_lang$core$Basics$floor(cfg.lines) - 1));
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			A2(
+				_elm_lang$core$List$map,
+				function (i) {
+					return A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _damienklinnert$elm_spinner$Spinner$outerStyle(cfg),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: A3(_damienklinnert$elm_spinner$Spinner$barStyles, cfg, _p4._0, i),
+									_1: {ctor: '[]'}
+								},
+								{ctor: '[]'}),
+							_1: {ctor: '[]'}
+						});
+				},
+				range));
+	});

@@ -22,6 +22,13 @@ suite =
                         "https://www.youtube.com/watch?v=y62zj9ozPOM"
                 in
                 Expect.equal "y62zj9ozPOM" (videoId uri)
+        , test "Handles mobile url" <|
+            \_ ->
+                let
+                    uri =
+                        "https://m.youtube.com/watch?v=y62zj9ozPOM"
+                in
+                Expect.equal "y62zj9ozPOM" (videoId uri)
         , test "Handles share video url" <|
             \_ ->
                 let

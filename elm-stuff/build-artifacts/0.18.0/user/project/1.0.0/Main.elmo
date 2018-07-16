@@ -90,14 +90,24 @@ var _user$project$Main$youTubeURIParser = function () {
 				})(
 				_elm_lang$core$Native_Utils.chr('&'))));
 	var chooseParser = function (str) {
-		return _elm_lang$core$Native_Utils.eq(str, 'https://www.youtube.com/watch?') ? normalURI : shareURI;
+		return _elm_lang$core$Native_Utils.eq(str, 'https://www.youtube.com/watch?') ? normalURI : (_elm_lang$core$Native_Utils.eq(str, 'https://m.youtube.com/watch?') ? normalURI : shareURI);
 	};
 	return A2(
 		_elm_community$parser_combinators$Combine_ops['>>='],
-		A2(
-			_elm_community$parser_combinators$Combine$or,
-			_elm_community$parser_combinators$Combine$string('https://www.youtube.com/watch?'),
-			_elm_community$parser_combinators$Combine$string('https://youtu.be/')),
+		_elm_community$parser_combinators$Combine$choice(
+			{
+				ctor: '::',
+				_0: _elm_community$parser_combinators$Combine$string('https://www.youtube.com/watch?'),
+				_1: {
+					ctor: '::',
+					_0: _elm_community$parser_combinators$Combine$string('https://m.youtube.com/watch?'),
+					_1: {
+						ctor: '::',
+						_0: _elm_community$parser_combinators$Combine$string('https://youtu.be/'),
+						_1: {ctor: '[]'}
+					}
+				}
+			}),
 		chooseParser);
 }();
 var _user$project$Main$videoId = function (uri) {

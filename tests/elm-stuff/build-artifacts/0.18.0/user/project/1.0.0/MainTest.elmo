@@ -29,15 +29,28 @@ var _user$project$MainTest$suite = A2(
 				ctor: '::',
 				_0: A2(
 					_elm_community$elm_test$Test$test,
-					'Handles share video url',
+					'Handles mobile url',
 					function (_p2) {
-						var uri = 'https://youtu.be/y62zj9ozPOM?t=15m26s';
+						var uri = 'https://m.youtube.com/watch?v=y62zj9ozPOM';
 						return A2(
 							_elm_community$elm_test$Expect$equal,
 							'y62zj9ozPOM',
 							_user$project$Main$videoId(uri));
 					}),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_community$elm_test$Test$test,
+						'Handles share video url',
+						function (_p3) {
+							var uri = 'https://youtu.be/y62zj9ozPOM?t=15m26s';
+							return A2(
+								_elm_community$elm_test$Expect$equal,
+								'y62zj9ozPOM',
+								_user$project$Main$videoId(uri));
+						}),
+					_1: {ctor: '[]'}
+				}
 			}
 		}
 	});
