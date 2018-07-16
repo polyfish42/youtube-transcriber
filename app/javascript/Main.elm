@@ -240,6 +240,7 @@ fetchCaptions uri =
         url =
             "https://youtube-transcription.herokuapp.com/api/transcript?uri=" ++ uri
 
+        -- "http://localhost:3000/api/transcript?uri=" ++ uri
         request =
             Http.get url decodeCaptionJson
     in
