@@ -10,6 +10,7 @@ import Html.Events exposing (onClick, onInput, onSubmit, onWithOptions)
 import Http exposing (get, send)
 import Json.Decode exposing (Decoder, field, float, list, map2, string, succeed)
 import Mouse
+import Spinner
 import Task
 
 
@@ -34,8 +35,10 @@ type alias Model =
     { uri : String
     , search : String
     , caption : Maybe CaptionHistory
+    , loading : Bool
     , errorMessage : Maybe String
     , dropDownStatus : DropDownStatus
+    , spinner : Spinner.Model
     }
 
 
@@ -68,7 +71,7 @@ type DropDownStatus
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "" "" Nothing Nothing Closed, Cmd.none )
+    ( Model "" "" Nothing False Nothing Closed Spinner.init, Cmd.none )
 
 
 
@@ -85,6 +88,7 @@ type Msg
     | UpdateSearch String
     | SkipToTime Float
     | BlurResult (Result Dom.Error ())
+    | SpinnerMsg Spinner.Msg
 
 
 
@@ -104,13 +108,13 @@ update message model =
             ( { model | uri = uri }, Cmd.none )
 
         FetchCaptions ->
-            { model | errorMessage = Nothing } ! [ fetchCaptions model.uri, blur "uri-input" |> Task.attempt BlurResult ]
+            { model | errorMessage = Nothing, loading = True } ! [ fetchCaptions model.uri, blur "uri-input" |> Task.attempt BlurResult ]
 
         NewCaptions (Ok newCaptions) ->
             ( addCaptions model newCaptions, loadVideo (videoId model.uri) )
 
         NewCaptions (Err message) ->
-            ( { model | errorMessage = Just <| errorMessage message }, Cmd.none )
+            ( { model | errorMessage = Just <| errorMessage message, loading = False }, Cmd.none )
 
         ToggleDropDown ->
             let
@@ -155,6 +159,13 @@ update message model =
         BlurResult _ ->
             ( model, Cmd.none )
 
+        SpinnerMsg msg ->
+            let
+                spinnerModel =
+                    Spinner.update msg model.spinner
+            in
+            ( { model | spinner = spinnerModel }, Cmd.none )
+
 
 errorMessage : Http.Error -> String
 errorMessage message =
@@ -181,13 +192,13 @@ addCaptions model captions =
     in
     case List.partition isEnglish captions of
         ( [ x ], xs ) ->
-            { model | caption = Just { current = x, rest = xs } }
+            { model | caption = Just { current = x, rest = xs }, loading = False }
 
         ( x :: xs, rest ) ->
-            { model | caption = Just { current = x, rest = xs ++ rest } }
+            { model | caption = Just { current = x, rest = xs ++ rest }, loading = False }
 
         ( [], x :: xs ) ->
-            { model | caption = Just { current = x, rest = xs } }
+            { model | caption = Just { current = x, rest = xs }, loading = False }
 
         _ ->
             model
@@ -258,14 +269,30 @@ lineDecoder =
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
+mouseSub : Model -> Sub Msg
+mouseSub model =
     case model.dropDownStatus of
         Closed ->
             Sub.none
 
         Open ->
             Mouse.clicks (always BlurDropDown)
+
+
+spinnerSub : Model -> Sub Msg
+spinnerSub model =
+    if model.loading then
+        Sub.map SpinnerMsg Spinner.subscription
+    else
+        Sub.none
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ mouseSub model
+        , spinnerSub model
+        ]
 
 
 
@@ -295,17 +322,16 @@ view model =
         , div [ id "player" ] []
         , viewSearchBar model
         , div [ class "transcript" ] (viewCaption model.caption model.search)
+        , viewSpinner model.spinner model.loading
         ]
 
 
-captionDoesExist : Maybe CaptionHistory -> Bool
-captionDoesExist history =
-    case history of
-        Just _ ->
-            True
-
-        Nothing ->
-            False
+viewSpinner : Spinner.Model -> Bool -> Html Msg
+viewSpinner spinner loading =
+    if loading then
+        Spinner.view Spinner.defaultConfig spinner
+    else
+        div [] []
 
 
 viewSearchBar : Model -> Html Msg
