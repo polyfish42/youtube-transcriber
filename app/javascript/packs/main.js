@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (player === undefined) {
       player = new YT.Player('player', {
         videoId: videoId,
+        host: 'https://www.youtube.com',
         events: {
           'onReady': window.onPlayerReady,
           'onStateChange': window.onPlayerStateChange
@@ -45,14 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.onPlayerReady = function (event) {
     event.target.playVideo()
-    // setInterval(() => {
-    //   console.log(player.getCurrentTime())
-    // }, 1000)
   }
 
-  window.onPlayerStateChange = function (event) {
-    console.log(event)
-  }
+  window.onPlayerStateChange = function (event) {}
 
   window.stopVideo = function () {
     player.stopVideo()

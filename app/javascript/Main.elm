@@ -238,7 +238,7 @@ fetchCaptions : String -> Cmd Msg
 fetchCaptions uri =
     let
         url =
-            "http://localhost:3000/api/transcript?uri=" ++ uri
+            "https://youtube-transcription.herokuapp.com/api/transcript?uri=" ++ uri
 
         request =
             Http.get url decodeCaptionJson
